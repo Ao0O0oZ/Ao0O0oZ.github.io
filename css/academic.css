@@ -13,7 +13,7 @@
     --bg-alt:     #ffffff;
     --border:     #ddd;
     --section-pad: 5rem;
-    --container:   900px;
+    --container:   1100px;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -64,17 +64,17 @@ a:hover { text-decoration: underline; }
 }
 
 .nav-brand {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: white;
+    display: flex;
+    align-items: center;
     text-decoration: none;
-    letter-spacing: 0.01em;
-    transition: color 0.3s;
-    white-space: nowrap;
+    flex-shrink: 0;
 }
 
-#navbar.scrolled .nav-brand { color: var(--navy); }
+#nav-logo {
+    height: 38px;
+    width: auto;
+    display: block;
+}
 
 .nav-links {
     list-style: none;
@@ -146,8 +146,8 @@ a:hover { text-decoration: underline; }
     inset: 0;
     background: linear-gradient(
         160deg,
-        rgba(10, 18, 40, 0.75) 0%,
-        rgba(15, 28, 60, 0.55) 100%
+        rgba(80, 40, 15, 0.38) 0%,
+        rgba(110, 65, 20, 0.20) 100%
     );
 }
 
@@ -343,15 +343,26 @@ a:hover { text-decoration: underline; }
 .pub-badge-prep { background: var(--accent); }
 
 .pub-image {
-    width: 150px;
+    flex: 1;
+    height: 180px;
     flex-shrink: 0;
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
 }
 
 .pub-image img {
-    width: 100%;
-    border-radius: 4px;
-    border: 1px solid var(--border);
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
     display: block;
+    border-radius: 3px;
 }
 
 /* ===================== GALLERY ===================== */
@@ -518,11 +529,11 @@ a:hover { text-decoration: underline; }
     }
 
     /* Pub layout stacks */
-    .pub-item { flex-direction: column-reverse; }
+    .pub-item { flex-direction: column; }
 
     .pub-image {
         width: 100%;
-        max-width: 260px;
+        height: 180px;
     }
 
     /* Gallery: 2 columns on tablets */
