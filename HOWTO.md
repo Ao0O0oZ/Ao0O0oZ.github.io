@@ -27,7 +27,7 @@ homepage/
 修改文件后，在浏览器直接打开本地文件即可预览，**不需要安装任何服务器**：
 
 ```bash
-open /Users/aozheng/Downloads/homepage/index.html
+open ./index.html
 ```
 
 每次保存文件后，在浏览器按 `Cmd+R` 刷新即可看到最新效果。
@@ -41,7 +41,7 @@ open /Users/aozheng/Downloads/homepage/index.html
 本地改好、预览满意后，执行以下命令发布：
 
 ```bash
-cd /Users/aozheng/Downloads/homepage
+cd /pathto/homepage
 
 # 1. 暂存所有改动
 git add -A
