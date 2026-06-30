@@ -446,6 +446,38 @@ a:hover { text-decoration: underline; }
     border-bottom: 1px solid var(--border);
 }
 
+.resource-cover {
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 0.35rem;
+    padding: 1.4rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--bg);
+}
+
+.resource-cover span {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(248, 247, 244, 0.78);
+}
+
+.resource-cover strong {
+    max-width: 15rem;
+    font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+    font-size: 1.45rem;
+    line-height: 1.18;
+}
+
+.resource-cover-cookbook {
+    background:
+        linear-gradient(135deg, rgba(26, 39, 68, 0.96), rgba(42, 100, 150, 0.88)),
+        linear-gradient(45deg, transparent 72%, rgba(198, 156, 74, 0.86) 72%);
+}
+
 .resource-info { padding: 1.25rem; }
 
 .resource-info h4 {
