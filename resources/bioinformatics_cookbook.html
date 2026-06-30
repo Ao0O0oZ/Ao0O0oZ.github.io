@@ -1,0 +1,1790 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>单细胞与空间多组学 Cookbook</title>
+  <style>
+    :root {
+      --bg: #f8f7f4;
+      --bg-soft: #fbfaf7;
+      --ink: #2c2c2c;
+      --muted: #666;
+      --panel: rgba(255, 255, 252, 0.94);
+      --line: #ded8ca;
+      --accent: #2a6496;
+      --accent-2: #c69c4a;
+      --accent-soft: #e9f1f8;
+      --deep: #1a2744;
+      --blue: #3a7cbd;
+      --code: #0d1424;
+      --code-line: #17213a;
+      --warn: #f8efe2;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 15% 0%, rgba(58, 124, 189, 0.10), transparent 28rem),
+        linear-gradient(180deg, #fbfaf6 0%, var(--bg) 32rem);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+      line-height: 1.55;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .layout { display: grid; grid-template-columns: 248px minmax(0, 1fr); min-height: 100vh; }
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      padding: 26px 18px;
+      color: #f8f7f4;
+      background: #1a2744;
+      border-right: 1px solid #101a30;
+      backdrop-filter: blur(16px);
+    }
+    aside h1 {
+      margin: 0 0 8px;
+      font-family: Georgia, "Times New Roman", "Noto Serif SC", serif;
+      font-size: 23px;
+      line-height: 1.18;
+      color: #f8f7f4;
+    }
+    aside p { margin: 0 0 18px; color: #cbd5e1; font-size: 13px; }
+    aside input {
+      width: 100%;
+      padding: 10px 11px;
+      border: 1px solid #3a7cbd;
+      border-radius: 6px;
+      color: #f8f7f4;
+      background: #101a30;
+      outline: none;
+    }
+    aside input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(42, 100, 150, 0.13); }
+    nav { display: grid; gap: 4px; margin-top: 18px; }
+    nav a { display: block; padding: 7px 8px; border-radius: 6px; color: #e6edf5; font-size: 14px; }
+    nav a:hover { background: rgba(58, 124, 189, 0.25); text-decoration: none; }
+    main { max-width: 1180px; width: 100%; margin: 0 auto; padding: 32px 28px 64px; }
+    .hero, .card, .recipe, .table-wrap {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: 0 12px 32px rgba(68, 64, 55, 0.06);
+    }
+    .hero {
+      padding: 30px;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 252, 0.98), rgba(233, 241, 248, 0.92)),
+        var(--panel);
+    }
+    .hero h2 {
+      margin: 0 0 10px;
+      font-family: Georgia, "Times New Roman", "Noto Serif SC", serif;
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 650;
+      letter-spacing: 0;
+      color: var(--deep);
+    }
+    .hero p { margin: 0; max-width: 880px; color: var(--muted); }
+    section { margin-top: 28px; }
+    section > h2 {
+      margin: 0 0 14px;
+      font-family: Georgia, "Times New Roman", "Noto Serif SC", serif;
+      font-size: 25px;
+      color: var(--deep);
+    }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .card h3, .recipe h3 { margin: 0 0 8px; font-size: 18px; }
+    .card p, .recipe p { margin: 7px 0; }
+    .recipe { margin-bottom: 14px; scroll-margin-top: 20px; }
+    .recipe header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      padding-bottom: 12px;
+      margin-bottom: 14px;
+      border-bottom: 1px solid var(--line);
+    }
+    .recipe header p { margin: 4px 0 0; color: var(--muted); }
+    .recipe:hover { border-color: #c2d4ce; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .tag {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 999px;
+      color: var(--accent);
+      background: var(--accent-soft);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 12px 0;
+    }
+    .meta div {
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fbfcfe;
+      font-size: 13px;
+    }
+    .meta strong { display: block; color: var(--muted); font-size: 12px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 9px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { background: #e9f1f8; color: var(--deep); font-size: 13px; }
+    pre {
+      overflow: auto;
+      margin: 12px 0 0;
+      padding: 16px;
+      border: 1px solid #111b2f;
+      border-radius: 8px;
+      color: #d9e3ea;
+      background: var(--code);
+      font-size: 12.5px;
+      line-height: 1.45;
+      tab-size: 2;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+    .code-wrap { position: relative; }
+    .copy-btn {
+      position: absolute;
+      top: 9px;
+      right: 9px;
+      z-index: 1;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 6px;
+      padding: 4px 8px;
+      color: #e8eef7;
+      background: rgba(58, 124, 189, 0.18);
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .copy-btn:hover { background: rgba(58, 124, 189, 0.34); }
+    .copy-btn.copied { color: #1a2744; background: #c69c4a; border-color: #c69c4a; }
+    pre::before {
+      content: attr(data-lang);
+      display: block;
+      margin: -4px 0 10px;
+      color: #8fa3af;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.92em; }
+    :not(pre) > code { padding: 1px 4px; border-radius: 4px; background: #eef2f6; }
+    .tok-comment { color: #8fa3af; font-style: italic; }
+    .tok-string { color: #bfdc99; }
+    .tok-keyword { color: #8fc8ff; }
+    .tok-builtin { color: #f0c56f; }
+    .tok-number { color: #d7aefb; }
+    .tok-var { color: #9bd9d0; }
+    .note {
+      padding: 12px 14px;
+      border-left: 4px solid #b45309;
+      border-radius: 6px;
+      color: #5f370e;
+      background: var(--warn);
+    }
+    .hidden { display: none !important; }
+    @media (min-width: 1200px) {
+      main { padding-left: 38px; padding-right: 38px; }
+    }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: relative; height: auto; padding: 18px 14px; }
+      nav {
+        grid-auto-flow: column;
+        grid-auto-columns: max-content;
+        overflow-x: auto;
+        padding-bottom: 6px;
+      }
+      nav a { white-space: nowrap; }
+      main { padding: 18px 12px 40px; }
+      .grid, .meta { grid-template-columns: 1fr; }
+      .recipe header { display: block; }
+      .hero { padding: 22px 18px; }
+      .table-wrap { overflow-x: auto; }
+      table { min-width: 720px; }
+      pre { margin-left: -4px; margin-right: -4px; padding: 14px 12px; font-size: 12px; border-radius: 7px; }
+    }
+    @media (max-width: 520px) {
+      body { line-height: 1.5; }
+      aside h1 { font-size: 21px; }
+      section > h2 { font-size: 22px; }
+      .recipe, .card, .table-wrap { padding: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <h1>Bioinfo Cookbook</h1>
+      <p>单细胞与空间多组学常用代码块</p>
+      <input id="search" type="search" placeholder="搜索：Seurat / QC / WNN / spatial / volcano">
+      <nav>
+        <a href="#overview">总览</a>
+        <a href="#directory">具体目录</a>
+        <a href="#setup">环境与数据</a>
+        <a href="#qc-integration">QC 与整合</a>
+        <a href="#annotation">注释与标签转移</a>
+        <a href="#spatial">空间分析</a>
+        <a href="#diff-regulation">差异、调控与遗传学</a>
+        <a href="#plotting">画图工具箱</a>
+        <a href="#software">常用软件</a>
+      </nav>
+    </aside>
+
+    <main>
+      <div class="hero" id="overview">
+        <h2>单细胞与空间多组学分析 Cookbook</h2>
+        <p>Single-cell RNA-seq · single-cell ATAC-seq · spatial transcriptomics · multiome integration</p>
+      </div>
+
+      <section id="directory">
+        <h2>具体目录</h2>
+        <div class="table-wrap searchable">
+          <table>
+            <thead><tr><th>模块</th><th>代码块</th><th>用途</th></tr></thead>
+            <tbody>
+              <tr><td>环境与数据</td><td><a href="#download">GEO/GSA 下载</a>、<a href="#cellranger">Cell Ranger multi / ARC</a>、<a href="#anndata-merge">AnnData 合并</a></td><td>下载 FASTQ，运行 10x pipeline，合并样本。</td></tr>
+              <tr><td>BCR</td><td><a href="#bcr">scBCR Dandelion 预处理</a></td><td>VDJ contig 重注释、isotype、突变、克隆多样性。</td></tr>
+              <tr><td>QC</td><td><a href="#scrna-qc">scRNA QC</a>、<a href="#scatac-qc">scATAC fragments / TSSE</a>、<a href="#doublet">scDblFinder</a>、<a href="#souporcell">Souporcell</a></td><td>常用 QC 指标、双细胞和混样拆分。</td></tr>
+              <tr><td>整合</td><td><a href="#rna-harmony">scRNA Harmony</a>、<a href="#atac-harmony">scATAC Harmony</a>、<a href="#wnn">WNN 双组学整合</a></td><td>RNA、ATAC、multiome 联合低维空间。</td></tr>
+              <tr><td>注释</td><td><a href="#seurat-transfer">Seurat label transfer</a>、<a href="#scpoli">scPoli</a>、<a href="#celltypist">CellTypist</a>、<a href="#jaccard">Jaccard</a></td><td>参考图谱标签转移和注释一致性评估。</td></tr>
+              <tr><td>空间</td><td><a href="#image-align">图像交互对齐</a>、<a href="#otsu-area">Otsu 面积</a>、<a href="#ripley">Ripley H</a>、<a href="#spatial-interactive">交互式空间图</a>、<a href="#moran">Moran's I</a>、<a href="#perm-colocal">置换共定位</a>、<a href="#spatial-zoomin">空间 zoom-in</a></td><td>图像配准、空间自相关、细胞共定位和局部展示。</td></tr>
+              <tr><td>差异与调控</td><td><a href="#volcano">火山图</a>、<a href="#peak-calling">scATAC peak calling</a>、<a href="#scenic">SCENIC+</a>、<a href="#genetics">fgwas / peak-to-gene / motifbreakR</a></td><td>DEG/DAR 展示、峰、eGRN 和遗传学整合。</td></tr>
+              <tr><td>画图</td><td><a href="#stack-bar">堆叠柱状图</a>、<a href="#boxplot-p">带 P 值 boxplot</a>、<a href="#heatmap-color">row color heatmap</a>、<a href="#go-barplot">GO barplot</a>、<a href="#joint-heatmap">复合 heatmap</a></td><td>论文图和探索性图的通用函数。</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="setup">
+        <h2>环境与数据</h2>
+
+        <article class="recipe searchable" id="download">
+          <header>
+            <div>
+              <h3>GEO / GSA-human 数据下载</h3>
+              <p>公开 GSA 用 <code>lftp mirror</code>，SRA/GEO 用 <code>prefetch</code> 和 <code>fasterq-dump</code>。受控数据不要把账号密码写进脚本，建议用环境变量。</p>
+            </div>
+            <div class="tags"><span class="tag">download</span><span class="tag">GEO</span><span class="tag">GSA</span></div>
+          </header>
+          <pre><code># GSA-human public data
+lftp ftp://download.big.ac.cn &lt;&lt;EOF
+cd gsa-human/HRAxxxxxx
+mirror --parallel=10 ./ ./HRAxxxxxx
+EOF
+
+# GSA-human controlled data: use environment variables
+export GSA_USER="your_email@example.com"
+export GSA_PASS="your_password"
+files=(HRAxxxxxx/HRRxxxxxxx/HRRxxxxxxx_f1.fastq.gz)
+parallel -j 12 \
+  'wget -c -nH --cut-dirs=2 --ftp-user="$GSA_USER" --ftp-password="$GSA_PASS" ftp://human.big.ac.cn/{}' \
+  ::: "${files[@]}"
+
+# GEO / SRA
+export work_path="$PWD/sra"
+mkdir -p "$work_path"
+cat SRR_Acc_List.txt | parallel -j 12 'prefetch {} --max-size 100000000'
+cat SRR_Acc_List.txt | parallel -j 12 'cd "$work_path"/{} && fasterq-dump {}.sra --split-files --include-technical'</code></pre>
+        </article>
+
+        <article class="recipe searchable" id="cellranger">
+          <header>
+            <div>
+              <h3>Cell Ranger multi / Cell Ranger ARC</h3>
+              <p>把样本路径和 reference 集中成变量。config csv 示例保留最关键字段。</p>
+            </div>
+            <div class="tags"><span class="tag">cellranger</span><span class="tag">10x</span></div>
+          </header>
+          <pre><code>PROJECT=/path/to/project
+REF_GEX=/path/to/refdata-gex-GRCh38
+REF_VDJ=/path/to/refdata-cellranger-vdj-GRCh38
+REF_ARC=/path/to/refdata-cellranger-arc-GRCh38
+SAMPLE=sample_id
+
+# GEX + VDJ
+cellranger multi \
+  --id=${SAMPLE} \
+  --csv=${PROJECT}/cellranger/config/multi_config_${SAMPLE}.csv \
+  --localcores=60 \
+  --localmem=200 \
+  --output-dir=${PROJECT}/cellranger/out/${SAMPLE}
+
+# multi_config_${SAMPLE}.csv
+[gene-expression]
+reference,/path/to/refdata-gex-GRCh38
+create-bam,true
+chemistry,fiveprime
+
+[vdj]
+reference,/path/to/refdata-cellranger-vdj-GRCh38
+
+[libraries]
+fastq_id,fastqs,feature_types
+GEX_ID,/path/to/fastq/GEX,Gene Expression
+TCR_ID,/path/to/fastq/TCR,VDJ-T
+BCR_ID,/path/to/fastq/BCR,VDJ-B</code></pre>
+          <pre><code># 10x Multiome count
+cellranger-arc count \
+  --id=library_1 \
+  --reference=${REF_ARC} \
+  --libraries=${PROJECT}/cellranger/config/library_1.csv \
+  --localcores=30 \
+  --localmem=300
+
+# library_1.csv
+fastqs,sample,library_type
+/path/to/GEX_fastqs,Sample1,Gene Expression
+/path/to/ATAC_fastqs,Sample1ATAC,Chromatin Accessibility
+
+# 10x Multiome aggr
+cellranger-arc aggr \
+  --id=aggr \
+  --csv=${PROJECT}/cellranger/config/aggr.csv \
+  --normalize=none \
+  --reference=${REF_ARC} \
+  --localcores=80 \
+  --localmem=650
+
+# aggr.csv
+library_id,atac_fragments,per_barcode_metrics,gex_molecule_info
+lib1,/path/to/lib1/outs/atac_fragments.tsv.gz,/path/to/lib1/outs/per_barcode_metrics.csv,/path/to/lib1/outs/gex_molecule_info.h5</code></pre>
+        </article>
+
+        <article class="recipe searchable" id="anndata-merge">
+          <header>
+            <div>
+              <h3>AnnData 合并</h3>
+              <p>多 cohort 合并时保留 <code>dataset</code> 标签，并用 <code>index_unique</code> 防止 barcode 重名。</p>
+            </div>
+            <div class="tags"><span class="tag">AnnData</span><span class="tag">merge</span></div>
+          </header>
+          <pre><code>import anndata as ad
+
+# rna_dict = {"dataset1": adata1, "dataset2": adata2, ...}
+rna_merge = ad.concat(
+    rna_dict,
+    label="dataset",
+    index_unique="-",
+    merge="same",
+)
+
+# paired multiome 时，RNA/ATAC 必须使用同一套 cell barcode
+common_cells = rna_merge.obs_names.intersection(atac_merge.obs_names)
+rna_merge = rna_merge[common_cells].copy()
+atac_merge = atac_merge[common_cells].copy()</code></pre>
+        </article>
+
+        <article class="recipe searchable" id="bcr">
+          <header>
+            <div>
+              <h3>scBCR Dandelion 预处理</h3>
+              <p>从 10x VDJ-B contig 到 Dandelion 对象、克隆和多样性。样本命名和个体分组按项目实际情况替换。</p>
+            </div>
+            <div class="tags"><span class="tag">BCR</span><span class="tag">Dandelion</span></div>
+          </header>
+          <pre><code>import os
+import shutil
+import pandas as pd
+import scanpy as sc
+import dandelion as ddl
+import muon as mu
+
+PROJECT = "/path/to/project"
+NPROC = "32"
+os.environ["GERMLINE"] = "/path/to/dandelion/germlines"
+os.environ["IGDATA"] = "/path/to/dandelion/igblast"
+os.environ["BLASTDB"] = "/path/to/dandelion/blast"
+
+def collect_bcr_contigs(cellranger_out, dandelion_dir):
+    samples = []
+    for sample in os.listdir(cellranger_out):
+        src = f"{cellranger_out}/{sample}/outs/multi/vdj_b"
+        dst = f"{dandelion_dir}/{sample}"
+        os.makedirs(dst, exist_ok=True)
+        try:
+            shutil.copy(f"{src}/all_contig.fasta", dst)
+            shutil.copy(f"{src}/all_contig_annotations.csv", dst)
+            samples.append(sample)
+        except FileNotFoundError:
+            print(f"No VDJ-B output: {sample}")
+    return samples
+
+sample_list = collect_bcr_contigs(
+    f"{PROJECT}/cellranger/out",
+    f"{PROJECT}/bcr/dandelion",
+)
+
+ddl.pp.format_fastas(sample_list, prefix=sample_list, filename_prefix="all")
+ddl.pp.reannotate_genes(
+    sample_list, org="human", db="imgt", filename_prefix="all",
+    additional_args={"igblastn": ["-num_threads", NPROC]},
+)
+ddl.pp.assign_isotypes(sample_list, filename_prefix="all", save_plot=True, show_plot=False)
+
+# Optional: one individual can contain multiple time points/samples
+sample_group = {"individual_1": ["sample_A", "sample_B"]}
+for individual, samples in sample_group.items():
+    ddl.pp.reassign_alleles(
+        data=samples,
+        combined_folder=f"{individual}_combine",
+        filename_prefix="all",
+        org="human",
+        db="imgt",
+    )
+
+adata = sc.read(f"{PROJECT}/data/rna_merge_qc.h5ad")
+bcr = pd.concat(
+    pd.read_csv(f"{PROJECT}/bcr/dandelion/{s}/dandelion/all_contig_dandelion.tsv", sep="\t")
+    for s in sample_list
+)
+
+cells = sorted(set(adata.obs_names) & set(bcr["cell_id"]))
+adata = adata[cells].copy()
+bcr = bcr.loc[bcr["cell_id"].isin(cells)]
+
+vdj, adata = ddl.pp.check_contigs(
+    data=bcr, adata=adata, library_type="ig",
+    productive_only=True, filter_extra=False,
+)
+ddl.tl.find_clones(vdj)
+ddl.pp.quantify_mutations(vdj, combine=False, split_locus=True, nproc=32)
+for method in ["gini", "chao1", "shannon"]:
+    ddl.tl.clone_diversity(vdj, groupby="sample_id", method=method)
+
+ddl.tl.transfer(adata, vdj)
+mdata = ddl.to_scirpy(vdj, to_mudata=True, gex_adata=adata)
+mu.pp.intersect_obs(mdata)
+mdata.write(f"{PROJECT}/data/rna_bcr_filter.h5mu")
+vdj.write_h5ddl(f"{PROJECT}/data/bcr_dandelion.h5ddl")</code></pre>
+        </article>
+      </section>
+
+      <section id="qc-integration">
+        <h2>QC 与整合</h2>
+
+        <article class="recipe searchable" id="scrna-qc">
+          <header>
+            <div>
+              <h3>scRNA QC 指标</h3>
+              <p>常用的人类单细胞 QC gene sets：线粒体、核糖体、线粒体核糖体、热休克、血红蛋白。</p>
+            </div>
+            <div class="tags"><span class="tag">scanpy</span><span class="tag">QC</span></div>
+          </header>
+          <pre><code>import scanpy as sc
+
+def add_rna_qc(adata):
+    adata.var["mt"] = adata.var_names.str.startswith("MT-")
+    adata.var["ribo"] = adata.var_names.str.startswith(("RPS", "RPL"))
+    adata.var["mtribo"] = adata.var_names.str.startswith(("MRPS", "MRPL"))
+    adata.var["heatshock"] = adata.var_names.str.startswith("HSP")
+    adata.var["hb"] = adata.var_names.str.contains("^HB[^(P)]")
+    sc.pp.calculate_qc_metrics(
+        adata,
+        qc_vars=["mt", "ribo", "mtribo", "heatshock", "hb"],
+        inplace=True,
+        percent_top=[20],
+        log1p=True,
+    )
+    return adata
+
+adata = add_rna_qc(adata)
+adata = adata[
+    (adata.obs["total_counts"] > 500)
+    & (adata.obs["total_counts"] < 20000)
+    & (adata.obs["n_genes_by_counts"] > 300)
+    & (adata.obs["pct_counts_mt"] < 10)
+].copy()
+adata.layers["counts"] = adata.X.copy()</code></pre>
+        </article>
+
+        <article class="recipe searchable" id="scatac-qc">
+          <header>
+            <div>
+              <h3>scATAC fragments 读入与 TSSE</h3>
+              <p>用 SnapATAC2 从 fragments 生成 AnnData，并计算 TSS enrichment。</p>
+            </div>
+            <div class="tags"><span class="tag">ATAC</span><span class="tag">SnapATAC2</span></div>
+          </header>
+          <pre><code>import snapatac2 as snap
+import scanpy as sc
+
+def read_atac_data(path, genome=snap.genome.hg38):
+    atac = snap.pp.import_fragments(
+        f"{path}/atac_fragments.tsv.gz",
+        chrom_sizes=genome,
+        sorted_by_barcode=False,
+        n_jobs=16,
+    )
+    atac.obs["batch"] = [bc.split("-")[1] for bc in atac.obs_names]
+    return atac
+
+atac = read_atac_data("cellranger/aggr/outs")
+snap.metrics.tsse(atac, snap.genome.hg38, n_jobs=32)
+sc.pp.calculate_qc_metrics(atac, percent_top=None, log1p=False, inplace=True)
+
+atac = atac[
+    (atac.obs["n_fragment"] > 1000)
+    & (atac.obs["n_fragment"] < 100000)
+    & (atac.obs["tsse"] > 6)
+].copy()</code></pre>
+        </article>
+
+        <article class="recipe searchable" id="doublet">
+          <header>
+            <div>
+              <h3>scDblFinder 去除双细胞</h3>
+              <p>R 内运行最稳；Python 项目可以先导出每个样本 h5ad，再读回 csv 结果。</p>
+            </div>
+            <div class="tags"><span class="tag">doublet</span><span class="tag">scDblFinder</span></div>
+          </header>
+          <pre><code># R
+library(scDblFinder)
+library(SingleCellExperiment)
+library(zellkonverter)
+
+sce <- readH5AD("data/sample_raw.h5ad")
+sce <- scDblFinder(sce, clusters = TRUE, BPPARAM = BiocParallel::MulticoreParam(4))
+
+res <- data.frame(
+  barcode = colnames(sce),
+  scDblFinder_score = sce$scDblFinder.score,
+  scDblFinder_class = sce$scDblFinder.class
+)
+write.csv(res, "data/scDblFinder/sample_result.csv", row.names = FALSE)</code></pre>
+          <pre><code># Python: merge scDblFinder results back
+dbl = pd.read_csv("data/scDblFinder/sample_result.csv").set_index("barcode")
+adata.obs = adata.obs.join(dbl, how="left")
+adata = adata[adata.obs["scDblFinder_class"] == "singlet"].copy()</code></pre>
+        </article>
+
+        <article class="recipe searchable" id="souporcell">
+          <header>
+            <div>
+              <h3>Souporcell 拆分样本</h3>
+              <p>适合 multiplexed 10x library。<code>-k</code> 是预计 donor 数，需要按 library 设置。</p>
+            </div>
+            <div class="tags"><span class="tag">demultiplex</span><span class="tag">souporcell</span></div>
+          </header>
+          <pre><code>conda activate souporcell
+export PATH=$CONDA_PREFIX/bin:$PATH
+
+CELLRANGER_OUT=/path/to/cellranger/library_1/outs
+REF_FASTA=/path/to/refdata-cellranger-arc-GRCh38/fasta/genome.fa
+OUT_DIR=data/souporcell/library_1
+
+python /path/to/souporcell/souporcell_pipeline.py \
+  -i ${CELLRANGER_OUT}/gex_possorted_bam.bam \
+  -b ${CELLRANGER_OUT}/filtered_feature_bc_matrix/barcodes.tsv.gz \
+  -f ${REF_FASTA} \
+  -o ${OUT_DIR} \
+  -t 30 \
+  -k 3</code></pre>
+        </article>
+
+        <article class="recipe searchable" id="rna-harmony">
+          <header>
+            <div>
+              <h3>scRNA Harmony 整合</h3>
+              <p>先保留 counts layer，再用 Seurat v3 HVG、PCA、Harmony、neighbors、UMAP。</p>
+            </div>
+            <div class="tags"><span class="tag">RNA</span><span class="tag">Harmony</span></div>
+          </header>
+          <pre><code>import scanpy as sc
+import pandas as pd
+
+rna = sc.read("data/multiome_rna_merge_qc.h5ad")
+sc.pp.normalize_total(rna, target_sum=1e4)
+sc.pp.log1p(rna)
+
+def find_hvg(adata, n_top_genes=3000, batch_key="batch", span=0.5):
+    exclude = ["mt", "ribo", "mtribo", "heatshock"]
+    genes = adata.var_names[~adata.var[exclude].any(axis=1)]
+    hvg = sc.pp.highly_variable_genes(
+        adata[:, genes],
+        n_top_genes=n_top_genes,
+        flavor="seurat_v3",
+        batch_key=batch_key,
+        inplace=False,
+        layer="counts",
+        span=span,
+    )
+    res = pd.Series(False, index=adata.var_names)
+    res.loc[hvg.index[hvg.highly_variable]] = True
+    return res
+
+rna.var["highly_variable"] = find_hvg(rna)
+sc.pp.scale(rna, max_value=10)
+sc.tl.pca(rna, use_highly_variable=True, random_state=123)
+sc.external.pp.harmony_integrate(
+    rna,
+    key=["dataset", "batch"],
+    basis="X_pca",
+    theta=[1, 1],
+    lamb=[1, 1],
+    max_iter_harmony=15,
+    random_state=123,
+)
+sc.pp.neighbors(rna, n_neighbors=20, n_pcs=30, use_rep="X_pca_harmony", random_state=123)
+sc.tl.umap(rna, min_dist=0.2, random_state=123)</code></pre>
+        </article>
+
+        <article class="recipe searchable" id="atac-harmony">
+          <header>
+            <div>
+              <h3>scATAC Harmony 整合</h3>
+              <p>tile matrix、feature selection、TF-IDF、LSI、去掉 LSI 第一维，再 Harmony。</p>
+            </div>
+            <div class="tags"><span class="tag">ATAC</span><span class="tag">LSI</span></div>
+          </header>
+          <pre><code>import muon as mu
+import scanpy as sc
+import snapatac2 as snap
+from muon import atac as ac
+
+atac = snap.read("data/multiome_atac_merge_qc.h5ad", backed=None)
+snap.pp.add_tile_matrix(atac, bin_size=500, n_jobs=16)
+sc.pp.calculate_qc_metrics(atac, percent_top=None, log1p=False, inplace=True)
+mu.pp.filter_var(atac, "n_cells_by_counts", lambda x: x >= 10)
+snap.pp.select_features(
+    atac,
+    n_features=1000000,
+    blacklist="/path/to/ENCODE_blacklist.bed.gz",
+    n_jobs=16,
+)
+atac = atac[:, atac.var.selected].copy()
+
+ac.pp.tfidf(atac, scale_factor=1e4)
+ac.tl.lsi(atac)
+atac.obsm["X_lsi"] = atac.obsm["X_lsi"][:, 1:]
+atac.varm["LSI"] = atac.varm["LSI"][:, 1:]
+atac.uns["lsi"]["stdev"] = atac.uns["lsi"]["stdev"][1:]
+
+snap.pp.harmony(
+    atac,
+    batch=["dataset", "batch"],
+    use_rep="X_lsi",
+    max_iter_harmony=20,
+    theta=[1, 1],
+    lamb=[1, 1],
+    n_jobs=16,
+    random_state=123,
+)
+sc.pp.neighbors(atac, use_rep="X_lsi_harmony", n_neighbors=20, n_pcs=30, random_state=123)
+sc.tl.umap(atac, min_dist=0.2, random_state=123)</code></pre>
+        </article>
+
+        <article class="recipe searchable" id="wnn">
+          <header>
+            <div>
+              <h3>WNN 双组学整合</h3>
+              <p>RNA 和 ATAC 分别整合后，用 Muon 建立 weighted nearest neighbor 图。</p>
+            </div>
+            <div class="tags"><span class="tag">WNN</span><span class="tag">multiome</span></div>
+          </header>
+          <pre><code>import muon as mu
+import scanpy as sc
+
+mdata = mu.MuData({"rna": rna, "atac": atac})
+mu.pp.neighbors(mdata, key_added="wnn")
+mu.tl.umap(mdata, neighbors_key="wnn", min_dist=0.2, random_state=123)
+mdata.obsm["X_wnn_umap"] = mdata.obsm["X_umap"].copy()
+
+for res in [0.5, 0.8, 1.0, 1.2, 1.4, 1.6]:
+    sc.tl.leiden(
+        mdata,
+        neighbors_key="wnn",
+        key_added=f"leiden_res{str(res).replace('.', '_')}",
+        resolution=res,
+        random_state=123,
+    )
+
+mdata.write("data/multiome_wnn.h5mu")</code></pre>
+        </article>
+      </section>
+
+      <section id="annotation">
+        <h2>注释与标签转移</h2>
+
+        <article class="recipe searchable" id="seurat-transfer">
+          <header>
+            <div>
+              <h3>Seurat Label Transfer</h3>
+              <p>适合从 scRNA/multiome reference 转移标签到 Xenium 或其他 query。预测分数直方图用于检查转移质量。</p>
+            </div>
+            <div class="tags"><span class="tag">Seurat</span><span class="tag">Xenium</span></div>
+          </header>
+          <pre><code>library(Seurat)
+library(ggplot2)
+
+# rna: reference Seurat object, contains rna$celltype_lv1
+# xenium: query Seurat object
+DefaultAssay(rna) <- "SCT"
+DefaultAssay(xenium) <- "SCT"
+
+anchors <- FindTransferAnchors(
+  reference = rna,
+  query = xenium,
+  dims = 1:30,
+  normalization.method = "SCT",
+  reference.reduction = "pca",
+  features = rownames(rna),
+  nn.method = "annoy",
+  k.anchor = 10,
+  n.trees = 80
+)
+
+pred <- TransferData(
+  anchorset = anchors,
+  refdata = rna$celltype_lv1,
+  dims = 1:30,
+  n.trees = 80
+)
+xenium <- AddMetaData(xenium, metadata = pred)
+
+xenium <- MapQuery(
+  anchorset = anchors,
+  query = xenium,
+  reference = rna,
+  refdata = list(celltype = "celltype_lv1"),
+  reduction.model = "umap"
+)
+
+ggplot(xenium@meta.data, aes(x = predicted.id.score)) +
+  geom_histogram(binwidth = 0.02, fill = "skyblue", color = "black", alpha = 0.5) +
+  labs(x = "Prediction score", y = "Cell count", title = "Label transfer score") +
+  theme_classic()</code></pre>
+        </article>
+
+        <article class="recipe searchable" id="scpoli">
+          <header>
+            <div>
+              <h3>scPoli Label Transfer</h3>
+              <p>用于跨数据集参考图谱预测，特别适合 batch 和 donor 差异较大的 scRNA atlas。</p>
+            </div>
+            <div class="tags"><span class="tag">scPoli</span><span class="tag">atlas</span></div>
+          </header>
+          <pre><code>import scanpy as sc
+import pandas as pd
+from scarches.models.scpoli import scPoli
+
+query = sc.read("data/query_rna.h5ad")
+ref = sc.read("data/reference_atlas.h5ad")
+ref.X = ref.layers["counts"].copy()
+
+genes = sorted(set(query.var_names) & set(ref.var_names))
+query = query[:, genes].copy()
+ref = ref[:, genes].copy()
+ref = ref[~ref.obs["cell_type"].isna()].copy()
+ref.obs["batch"] = ref.obs["library"].astype(str)
+
+model = scPoli(
+    adata=ref,
+    condition_keys="batch",
+    cell_type_keys="cell_type",
+    embedding_dims=5,
+    recon_loss="nb",
+)
+model.train(n_epochs=50, pretraining_epochs=40, eta=5)
+
+query.obs["cell_type"] = "unknown"
+query_model = scPoli.load_query_data(query, reference_model=model, labeled_indices=[])
+query_model.train(n_epochs=50, pretraining_epochs=40, eta=10)
+pred = query_model.classify(query, scale_uncertainties=True)
+
+res = pd.DataFrame(index=query.obs_names)
+res["scpoli_celltype"] = pred["cell_type"]["preds"]
+res["scpoli_uncertainty"] = pred["cell_type"]["uncert"]
+res.to_csv("data/scpoli_prediction.csv")</code></pre>
+        </article>
+
+        <article class="recipe searchable" id="celltypist">
+          <header>
+            <div>
+              <h3>CellTypist 自动注释</h3>
+              <p>先从 counts 标准化到 1e4，再 log1p。CellTypist 对 dense matrix 兼容性更好。</p>
+            </div>
+            <div class="tags"><span class="tag">CellTypist</span><span class="tag">annotation</span></div>
+          </header>
+          <pre><code>import scanpy as sc
+import celltypist
+from celltypist import models
+
+def celltypist_predict(adata, model_name="Immune_All_High.pkl"):
+    x = adata.copy()
+    x.X = x.layers["counts"].copy()
+    sc.pp.normalize_total(x, target_sum=1e4)
+    sc.pp.log1p(x)
+    if hasattr(x.X, "toarray"):
+        x.X = x.X.toarray()
+
+    model = models.Model.load(model=model_name)
+    pred = celltypist.annotate(x, model=model, majority_voting=True)
+    return pred.to_adata().copy()
+
+pred_adata = celltypist_predict(adata)
+adata.obs["celltypist_celltype"] = pred_adata.obs["majority_voting"].reindex(adata.obs_names)</code></pre>
+        </article>
+
+        <article class="recipe searchable" id="jaccard">
+          <header>
+            <div>
+              <h3>Jaccard Index</h3>
+              <p>用于比较两个细胞集合、cluster overlap 或拆样 assignment 的一致性。</p>
+            </div>
+            <div class="tags"><span class="tag">metric</span></div>
+          </header>
+          <pre><code>def jaccard(a, b):
+    a, b = set(a), set(b)
+    union = a | b
+    if len(union) == 0:
+        return 0
+    return len(a & b) / len(union)</code></pre>
+        </article>
+      </section>
+
+      <section id="spatial">
+        <h2>空间分析</h2>
+
+        <article class="recipe searchable" id="image-align">
+          <header>
+            <div>
+              <h3>图像交互对齐</h3>
+              <p>用于 HE、ssDNA、IF 图像粗配准。函数返回叠加图；在 notebook 中配合 <code>ipywidgets.interactive</code> 调参。</p>
+            </div>
+            <div class="tags"><span class="tag">image</span><span class="tag">alignment</span></div>
+          </header>
+          <pre><code>import numpy as np
+import matplotlib.pyplot as plt
+from PIL import Image, ImageEnhance
+from ipywidgets import interactive
+
+def tint_image(img, color, brightness=2):
+    img = np.asarray(img.convert("RGB")).copy()
+    if color == "cyan":
+        img[:, :, 0] = 0.1 * img[:, :, 0]
+    elif color == "cherry":
+        img[:, :, 1] = 0.094 * img[:, :, 1]
+        img[:, :, 2] = 0.266 * img[:, :, 2]
+    return ImageEnhance.Brightness(Image.fromarray(img)).enhance(brightness)
+
+def place_image(img, canvas_size, scale=1, angle=0, x_offset=0, y_offset=0):
+    canvas = Image.fromarray(np.zeros((canvas_size, canvas_size, 3), dtype=np.uint8))
+    w, h = img.size
+    img = img.resize((round(w * scale), round(h * scale))).rotate(angle, expand=True)
+    pos = ((canvas.width - img.width) // 2, (canvas.height - img.height) // 2)
+    canvas.paste(img, pos)
+    return canvas.transform(canvas.size, Image.AFFINE, (1, 0, x_offset, 0, 1, y_offset))
+
+def image_align(img_1, img_2, x_offset_1=0, y_offset_1=0, angle_1=0,
+                x_offset_2=0, y_offset_2=0, angle_2=0, scale_1=1, scale_2=1):
+    img_1 = tint_image(img_1, "cherry")
+    img_2 = tint_image(img_2, "cyan")
+    canvas_size = int(max(*img_1.size, *img_2.size))
+    img_1 = place_image(img_1, canvas_size, scale_1, angle_1, x_offset_1, y_offset_1)
+    img_2 = place_image(img_2, canvas_size, scale_2, angle_2, x_offset_2, y_offset_2)
+
+    fig, ax = plt.subplots(figsize=(10, 10))
+    ax.imshow(img_1)
+    ax.imshow(img_2, alpha=0.5)
+    ax.set(xlim=[0, canvas_size], ylim=[canvas_size, 0], xticks=[], yticks=[])
+    return fig, ax
+
+# interactive(image_align, img_1=image_dict, img_2=image_dict, angle_1=0, angle_2=0, scale_1=1, scale_2=1)</code></pre>
+        </article>
+
+        <article class="recipe searchable" id="otsu-area">
+          <header>
+            <div>
+              <h3>Otsu 分割计算组织面积</h3>
+              <p>适合 HE/ssDNA 图像快速估计组织区域面积。</p>
+            </div>
+            <div class="tags"><span class="tag">Otsu</span><span class="tag">image</span></div>
+          </header>
+          <pre><code>import cv2
+import numpy as np
+
+def calculate_tissue_area(img_bgr):
+    gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
+    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+    _, mask = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    mask = cv2.bitwise_not(mask)
+    area = int(np.sum(mask == 255))
+    return mask, area</code></pre>
+        </article>
+
+        <article class="recipe searchable" id="ripley">
+          <header>
+            <div>
+              <h3>Ripley H 函数计算空间共定位</h3>
+              <p>输入可以是同类或双变量细胞间距离矩阵。A 是组织面积或可分析区域面积。</p>
+            </div>
+            <div class="tags"><span class="tag">Ripley</span><span class="tag">colocalization</span></div>
+          </header>
+          <pre><code>import numpy as np
+
+def ripley_h(dist_mat, r, area, bivariate=True):
+    if bivariate:
+        indicator_sum = np.sum(dist_mat < r)
+    else:
+        indicator_sum = np.sum(dist_mat < r) - dist_mat.shape[0]
+    n_x, n_y = dist_mat.shape
+    k = indicator_sum * area / (n_x * n_y)
+    return np.sqrt(k / np.pi) - r
+
+def ripley_h_auc(dist_mat, r_max, area, bivariate=True, step=1):
+    radii = np.arange(1, r_max, step)
+    values = np.array([ripley_h(dist_mat, r, area, bivariate) for r in radii])
+    auc = values.sum() * step
+    return radii, values, auc</code></pre>
+        </article>
+
+        <article class="recipe searchable" id="spatial-interactive">
+          <header>
+            <div>
+              <h3>空间交互式展示图</h3>
+              <p>Plotly Scattergl 适合上万到几十万细胞点的交互查看。</p>
+            </div>
+            <div class="tags"><span class="tag">Plotly</span><span class="tag">spatial</span></div>
+          </header>
+          <pre><code>import plotly.graph_objects as go
+
+def interactive_spatial(obs, groupby, x="aligned_x", y="aligned_y", palette=None, size=2):
+    fig = go.Figure()
+    for label, df in obs.groupby(groupby):
+        color = palette[label] if palette and label in palette else None
+        fig.add_trace(go.Scattergl(
+            x=df[x],
+            y=df[y],
+            mode="markers",
+            marker=dict(color=color, size=size),
+            name=str(label),
+            text=[str(label)] * len(df),
+            hoverinfo="text",
+        ))
+    fig.update_xaxes(showgrid=False)
+    fig.update_yaxes(scaleanchor="x", showgrid=False, scaleratio=1)
+    fig.update_layout(
+        plot_bgcolor="#000000",
+        paper_bgcolor="#000000",
+        width=600,
+        height=800,
+        showlegend=True,
+        dragmode="pan",
+    )
+    fig.show(config={"scrollZoom": True})
+    return fig
+
+# interactive_spatial(adata.obs, "seurat_celltype", palette=celltype_color)</code></pre>
+        </article>
+
+        <article class="recipe searchable" id="moran">
+          <header>
+            <div>
+              <h3>Visium / Spatial Moran's I</h3>
+              <p>可用于 cell2location 细胞类型丰度、gene expression 或 obs 中任意连续变量的空间自相关。</p>
+            </div>
+            <div class="tags"><span class="tag">Squidpy</span><span class="tag">Moran</span></div>
+          </header>
+          <pre><code>import squidpy as sq
+
+sq.gr.spatial_neighbors(adata)
+adata.obs["PT_VCAM1"] = adata.obsm["cell2loc_celltype"]["PT_VCAM1"]
+
+sq.gr.spatial_autocorr(
+    adata,
+    mode="moran",
+    genes="PT_VCAM1",
+    attr="obs",
+    n_perms=100,
+    n_jobs=4,
+)
+
+moran_i = adata.uns["moranI"]["I"].iloc[0]
+p_value = adata.uns["moranI"]["pval_norm"].iloc[0]
+print(moran_i, p_value)</code></pre>
+        </article>
+
+        <article class="recipe searchable" id="perm-colocal">
+          <header>
+            <div>
+              <h3>置换检验计算细胞类型空间共定位</h3>
+              <p>按 sample 独立计算邻域组成，再随机打乱 cell type 生成 null distribution。</p>
+            </div>
+            <div class="tags"><span class="tag">KDTree</span><span class="tag">permutation</span></div>
+          </header>
+          <pre><code>import numpy as np
+import pandas as pd
+from sklearn.neighbors import KDTree
+from joblib import Parallel, delayed
+
+def compute_neighbors(obs, radius=100):
+    tree = KDTree(obs[["x", "y"]].values)
+    return tree.query_radius(obs[["x", "y"]].values, r=radius)
+
+def neighbor_composition(obs, groupby, neighbors):
+    obs[groupby] = obs[groupby].astype("category")
+    labels = obs[groupby].cat.codes.values
+    names = obs[groupby].cat.categories
+    k = len(names)
+    sum_prop = np.zeros((k, k), dtype=np.float32)
+    count = np.zeros(k, dtype=np.int32)
+
+    for i, nbrs in enumerate(neighbors):
+        src = labels[i]
+        nbrs = nbrs[nbrs != i]
+        if len(nbrs) == 0:
+            continue
+        sum_prop[src] += np.bincount(labels[nbrs], minlength=k) / len(nbrs)
+        count[src] += 1
+
+    avg = np.nan_to_num(sum_prop / count[:, None])
+    res = pd.DataFrame(avg, index=names, columns=names).stack().reset_index()
+    res.columns = ["source", "target", "prop"]
+    return res
+
+def permutation_once(obs, groupby, neighbors):
+    perm = obs[[groupby]].copy()
+    perm[groupby] = pd.Categorical(
+        np.random.permutation(perm[groupby].values),
+        categories=obs[groupby].cat.categories,
+    )
+    return neighbor_composition(perm, groupby, neighbors)["prop"].values
+
+def colocalization_permutation(adata, sample_key="sample", groupby="cluster", radius=100, n_perm=1000, n_jobs=8):
+    out = []
+    for sample in adata.obs[sample_key].unique():
+        obs = adata.obs.loc[adata.obs[sample_key] == sample, ["x", "y", groupby]].copy()
+        obs[groupby] = obs[groupby].astype("category").cat.remove_unused_categories()
+        neighbors = compute_neighbors(obs, radius)
+        observed = neighbor_composition(obs, groupby, neighbors)
+        perms = Parallel(n_jobs=n_jobs)(
+            delayed(permutation_once)(obs, groupby, neighbors) for _ in range(n_perm)
+        )
+        perms = np.vstack(perms)
+        observed["mean_perm"] = perms.mean(axis=0)
+        observed["std_perm"] = perms.std(axis=0)
+        observed["z_score"] = (observed["prop"] - observed["mean_perm"]) / observed["std_perm"]
+        observed["p_empirical"] = (np.sum(perms >= observed["prop"].values, axis=0) + 1) / (n_perm + 1)
+        observed[sample_key] = sample
+        out.append(observed)
+    return pd.concat(out, axis=0)
+
+# res = colocalization_permutation(xenium, radius=100, n_perm=10000, n_jobs=16)</code></pre>
+        </article>
+
+        <article class="recipe searchable" id="spatial-zoomin">
+          <header>
+            <div>
+              <h3>空间 Zoom-in 展示图</h3>
+              <p>左侧全局图，右侧多个局部区域：niche、cell type、marker expression。</p>
+            </div>
+            <div class="tags"><span class="tag">spatial plot</span><span class="tag">zoom</span></div>
+          </header>
+          <pre><code>import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
+import matplotlib.patches as patches
+
+def spatial_zoomin(adata, sample, crops, genes, color_key="niche", palette=None, celltype_key="celltype"):
+    data = adata[adata.obs["sample"] == sample].copy()
+    fig = plt.figure(figsize=(7, 5))
+    gs = gridspec.GridSpec(len(crops), 4, hspace=0.1, width_ratios=(1, 1, 1, 1))
+
+    ax_all = plt.subplot(gs[:, 0])
+    sns.scatterplot(data=data.obs, x="x", y="y", hue=color_key, ax=ax_all,
+                    s=0.5, edgecolor=None, palette=palette, rasterized=True)
+    ax_all.invert_yaxis()
+    ax_all.set(xticks=[], yticks=[], aspect=1, xlabel="", ylabel="")
+    ax_all.legend_.remove()
+
+    for i, (x0, x1, y0, y1) in enumerate(crops):
+        crop = data[(data.obs["x"] >= x0) & (data.obs["x"] <= x1) & (data.obs["y"] >= y0) & (data.obs["y"] <= y1)].copy()
+        crop.obs["x_local"] = crop.obs["x"] - x0
+        crop.obs["y_local"] = crop.obs["y"] - y0
+        ax_all.add_patch(patches.Rectangle((x0, y0), x1 - x0, y1 - y0, edgecolor="#ffffff", fill=False, linewidth=.75))
+
+        for j, key in enumerate([color_key, celltype_key]):
+            ax = plt.subplot(gs[i, j + 1])
+            sns.scatterplot(data=crop.obs, x="x_local", y="y_local", hue=key, ax=ax, s=8, edgecolor=None, rasterized=True)
+            ax.invert_yaxis()
+            ax.set(xlim=[0, x1 - x0], ylim=[y1 - y0, 0], aspect=1, xticks=[], yticks=[], xlabel="", ylabel="")
+            ax.legend_.remove()
+
+        gene = genes[i]
+        exp = crop[:, gene].X.toarray().ravel() if hasattr(crop[:, gene].X, "toarray") else np.ravel(crop[:, gene].X)
+        idx = np.argsort(exp)
+        ax = plt.subplot(gs[i, 3])
+        ax.set_facecolor("#000000")
+        ax.scatter(crop.obs["x_local"].iloc[idx], crop.obs["y_local"].iloc[idx], c=exp[idx], s=8, cmap="plasma", linewidths=0, rasterized=True)
+        ax.invert_yaxis()
+        ax.set(title=gene, xlim=[0, x1 - x0], ylim=[y1 - y0, 0], aspect=1, xticks=[], yticks=[], xlabel="", ylabel="")
+    return fig</code></pre>
+        </article>
+      </section>
+
+      <section id="diff-regulation">
+        <h2>差异、调控与遗传学</h2>
+
+        <article class="recipe searchable" id="volcano">
+          <header>
+            <div>
+              <h3>火山图</h3>
+              <p>Python 和 R 两个版本。默认标注最显著的 up/down genes。</p>
+            </div>
+            <div class="tags"><span class="tag">DEG</span><span class="tag">volcano</span></div>
+          </header>
+          <pre><code>import numpy as np
+import pandas as pd
+import seaborn as sns
+from adjustText import adjust_text
+
+def volcano_plot(deg, ax, p_threshold=0.05, logfc_threshold=0.25, title=None):
+    deg = deg.loc[deg["p_val_adj"] < 1].copy().sort_values("p_val_adj")
+    deg["sign"] = np.select(
+        [
+            (deg["p_val_adj"] < p_threshold) & (deg["avg_log2FC"] > logfc_threshold),
+            (deg["p_val_adj"] < p_threshold) & (deg["avg_log2FC"] < -logfc_threshold),
+        ],
+        ["Up", "Down"],
+        default="No",
+    )
+    deg["sign"] = pd.Categorical(deg["sign"], categories=["Up", "No", "Down"], ordered=True)
+    top_genes = list(deg.loc[deg["sign"] == "Up", "gene"].head(10)) + list(deg.loc[deg["sign"] == "Down", "gene"].head(10))
+    deg["label"] = deg["gene"].where(deg["gene"].isin(top_genes), "")
+    deg["neg_log10_padj"] = -np.log10(deg["p_val_adj"].clip(lower=1e-300))
+
+    palette = {"Up": "#BC3C28", "No": "grey", "Down": "#0072B5"}
+    sns.scatterplot(data=deg, x="avg_log2FC", y="neg_log10_padj", hue="sign",
+                    palette=palette, edgecolor="black", s=40, linewidths=.25, ax=ax)
+    ax.axvline(logfc_threshold, color="black", linestyle="--", lw=.5)
+    ax.axvline(-logfc_threshold, color="black", linestyle="--", lw=.5)
+    ax.axhline(-np.log10(p_threshold), color="black", linestyle="--", lw=.5)
+
+    texts = [ax.text(r.avg_log2FC, r.neg_log10_padj, r.label, fontsize=8) for r in deg.itertuples() if r.label]
+    adjust_text(texts, arrowprops=dict(arrowstyle="-", color="black", lw=.25), ax=ax)
+    ax.set(xlabel="log2(FoldChange)", ylabel="-log10(adj. P)", title=title)
+    ax.legend(title="", frameon=False)
+    ax.grid(False)
+    return ax</code></pre>
+          <pre><code>volcano_plot &lt;- function(deg, p_threshold = 0.05, logfc_threshold = 0.25) {
+  library(ggplot2)
+  library(ggrepel)
+  deg &lt;- subset(deg, p_val_adj &lt; 1)
+  deg &lt;- deg[order(deg$p_val_adj), ]
+  deg$sign &lt;- ifelse(
+    deg$p_val_adj &lt; p_threshold & abs(deg$avg_log2FC) &gt; logfc_threshold,
+    ifelse(deg$avg_log2FC &gt; logfc_threshold, "Up", "Down"),
+    "No"
+  )
+  deg$sign &lt;- factor(deg$sign, levels = c("Up", "No", "Down"))
+  top_genes &lt;- c(head(subset(deg, sign == "Up")$gene, 10), head(subset(deg, sign == "Down")$gene, 10))
+  deg$label &lt;- ifelse(deg$gene %in% top_genes, deg$gene, "")
+
+  ggplot(deg, aes(avg_log2FC, -log10(p_val_adj))) +
+    geom_point(aes(fill = sign), size = 2, pch = 21, color = "black") +
+    scale_fill_manual(values = c(Up = "#BC3C28", No = "grey", Down = "#0072B5"), drop = FALSE) +
+    geom_vline(xintercept = c(-logfc_threshold, logfc_threshold), linetype = "dashed") +
+    geom_hline(yintercept = -log10(p_threshold), linetype = "dashed") +
+    geom_text_repel(aes(label = label), size = 3, max.overlaps = Inf, show.legend = FALSE) +
+    theme_classic() +
+    labs(x = "log2(FoldChange)", y = "-log10(adj. P)", fill = NULL)
+}</code></pre>
+        </article>
+
+        <article class="recipe searchable" id="peak-calling">
+          <header>
+            <div>
+              <h3>scATAC Peak Calling</h3>
+            </div>
+            <div class="tags"><span class="tag">ATAC</span><span class="tag">MACS3</span></div>
+          </header>
+          <pre><code>import snapatac2 as snap
+
+selections = ["Mac", "Mono", "DC"]
+celltype_peaks = snap.tl.macs3(
+    atac,
+    groupby="imm_celltype",
+    replicate="dataset",
+    inplace=False,
+    n_jobs=12,
+    selections=selections,
+    qvalue=0.05,
+    replicate_qvalue=0.1,
+    shift=-73,
+    extsize=146,
+    blacklist="/path/to/ENCODE_blacklist.bed.gz",
+)
+peaks = snap.tl.merge_peaks(celltype_peaks, snap.genome.hg38)
+peak_mat = snap.pp.make_peak_matrix(atac, use_rep=peaks["Peaks"])
+peak_mat.write("data/peak_matrix.h5ad")</code></pre>
+        </article>
+
+        <article class="recipe searchable" id="scenic">
+          <header>
+            <div>
+              <h3>SCENIC+ Pipeline 备忘</h3>
+            </div>
+            <div class="tags"><span class="tag">SCENIC+</span><span class="tag">eGRN</span></div>
+          </header>
+          <pre><code># 1. Create cisTopic object and topic model
+from pycisTopic.cistopic_class import create_cistopic_object
+from pycisTopic.lda_models import run_cgs_models, evaluate_models
+
+cistopic_obj = create_cistopic_object(
+    fragment_matrix=peak_mat,
+    path_to_blacklist="/path/to/ENCODE_blacklist.bed.gz",
+)
+cistopic_obj.add_cell_data(atac.obs)
+models = run_cgs_models(
+    cistopic_obj,
+    n_topics=[2, 5, 10, 15, 20, 25, 30, 40, 50],
+    n_cpu=3,
+    n_iter=600,
+    random_state=123,
+    _temp_dir="tmp",
+)
+cistopic_obj.add_LDA_model(evaluate_models(models, select_model=30, return_model=True))</code></pre>
+          <pre><code># 2. Candidate enhancers and differential accessible regions
+from pycisTopic.topic_binarization import binarize_topics
+from pycisTopic.diff_features import impute_accessibility, normalize_scores, find_highly_variable_features, find_diff_features
+
+region_bin_topics = binarize_topics(cistopic_obj, method="otsu")
+imputed = impute_accessibility(cistopic_obj, scale_factor=10**6)
+normalized = normalize_scores(imputed, scale_factor=10**4)
+variable_regions = find_highly_variable_features(normalized, min_disp=0.05, min_mean=0.0125)
+markers = find_diff_features(
+    cistopic_obj,
+    imputed,
+    variable="cluster",
+    var_features=variable_regions,
+    adjpval_thr=0.05,
+    log2fc_thr=0.5,
+    n_cpu=4,
+    _temp_dir="tmp",
+)</code></pre>
+          <pre><code># 3. eGRN core
+from scenicplus.scenicplus_class import create_SCENICPLUS_object
+from scenicplus.preprocessing.filtering import filter_genes, filter_regions
+from scenicplus.cistromes import merge_cistromes
+from scenicplus.enhancer_to_gene import get_search_space, calculate_regions_to_genes_relationships
+from scenicplus.TF_to_gene import calculate_TFs_to_genes_relationships
+from scenicplus.grn_builder.gsea_approach import build_grn
+
+scplus_obj = create_SCENICPLUS_object(
+    GEX_anndata=rna,
+    cisTopic_obj=cistopic_obj,
+    menr=menr,
+    bc_transform_func=lambda x: f"{x}___cisTopic",
+)
+filter_genes(scplus_obj, min_pct=0.1)
+filter_regions(scplus_obj, min_pct=0.1)
+merge_cistromes(scplus_obj)
+
+get_search_space(scplus_obj, pr_annot=gene_annot, pr_chromsizes=chromsizes, upstream=[1000, 150000], downstream=[1000, 150000])
+calculate_regions_to_genes_relationships(scplus_obj, ray_n_cpu=1, _temp_dir="tmp")
+calculate_TFs_to_genes_relationships(scplus_obj, tf_file="/path/to/allTFs_hg38.txt", ray_n_cpu=1, key="TF2G_adj")
+build_grn(scplus_obj, min_target_genes=1, quantiles=(0.85, 0.90, 0.95), ray_n_cpu=1, _temp_dir="tmp")</code></pre>
+        </article>
+
+        <article class="recipe searchable" id="genetics">
+          <header>
+            <div>
+              <h3>fgwas / Peak-to-gene / motifbreakR</h3>
+            </div>
+            <div class="tags"><span class="tag">GWAS</span><span class="tag">motifbreakR</span></div>
+          </header>
+          <pre><code>import pybedtools
+
+celltypes = ["ct1", "ct2", "ct3"]
+gwas_bed = pybedtools.BedTool.from_dataframe(
+    gwas[["CHR", "POS", "END", "SNPID"]]
+)
+
+for ct in celltypes:
+    gwas[ct] = 0
+    markers = pybedtools.BedTool(f"marker_peaks/{ct}_fgwas.bed")
+    inter_snps = (
+        gwas_bed
+        .intersect(markers, wa=True)
+        .to_dataframe()["name"]
+        .values
+    )
+    gwas.loc[gwas["SNPID"].isin(inter_snps), ct] = 1
+
+for item in ["five.prime.utrs", "three.prime.utrs", "promoters", "exons"]:
+    gwas[item] = 0
+    anno = pybedtools.BedTool(f"gencode/human/annotation/{item}.bed")
+    inter_snps = (
+        gwas_bed
+        .intersect(anno, wa=True)
+        .to_dataframe()["name"]
+        .values
+    )
+    gwas.loc[gwas["SNPID"].isin(inter_snps), item] = 1
+
+gwas.to_csv(
+    "meta_gwas_snap_marker_overlap.bed",
+    header=False,
+    index=False,
+    sep="\t",
+)
+
+header = (
+    "CHR\tPOS\tEND\tSNPID\tSE\tF\tZ\tNCASE\tNCONTROL\t"
+    + "\t".join(celltypes)
+    + "\tfive.prime.utrs\tthree.prime.utrs\tpromoters\texons"
+)
+
+!sort -k1,1V -k2,2n meta_gwas_snap_marker_overlap.bed | \
+  sed "1i\\{header}" | \
+  gzip > meta_gwas_snap_marker_overlap.sorted.bed.gz
+
+!export LD_LIBRARY_PATH="$HOME/local/gsl/lib:$HOME/local/openblas/lib:$HOME/local/boost/lib:$LD_LIBRARY_PATH" && \
+  parallel -j 3 \
+    fgwas-0.3.6/src/fgwas \
+    -cc -print \
+    -i meta_gwas_snap_marker_overlap.sorted.bed.gz \
+    -w {}+"five.prime.utrs"+"three.prime.utrs"+"promoters"+"exons" \
+    -o {} ::: ct1 ct2 ct3</code></pre>
+
+          <pre><code>library(ArchR)
+library(dplyr)
+
+addArchRGenome("hg38")
+addArchRThreads(threads = 16)
+
+proj <- loadArchRProject("data/ArchR")
+
+# Add peak matrix and gene expression matrix before linking
+proj <- addPeakMatrix(proj)
+proj <- addGeneExpressionMatrix(
+  ArchRProj = proj,
+  seRNA = "data/seurat_rna_reference.rds",
+  groupRNA = "celltype",
+  groupATAC = "celltype"
+)
+
+proj <- addPeak2GeneLinks(
+  ArchRProj = proj,
+  reducedDims = "IterativeLSI",
+  useMatrix = "GeneIntegrationMatrix",
+  corCutOff = 0.3,
+  resolution = 1
+)
+
+p2g <- getPeak2GeneLinks(
+  ArchRProj = proj,
+  corCutOff = 0.3,
+  resolution = 1,
+  returnLoops = FALSE
+)
+
+p2g_df <- as.data.frame(p2g)
+write.csv(p2g_df, "data/ArchR/peak2gene_links.csv", row.names = FALSE)
+saveArchRProject(proj, outputDirectory = "data/ArchR_peak2gene", load = FALSE)</code></pre>
+
+          <pre><code>suppressPackageStartupMessages({
+  library(motifbreakR)
+  library(SNPlocs.Hsapiens.dbSNP155.GRCh38)
+  library(BSgenome.Hsapiens.UCSC.hg38)
+  library(MotifDb)
+  library(BiocParallel)
+})
+
+snps.mb &lt;- snps.from.file(
+  file = "data/GWAS/snps.bed",
+  dbSNP = SNPlocs.Hsapiens.dbSNP155.GRCh38,
+  search.genome = BSgenome.Hsapiens.UCSC.hg38
+)
+
+hg_motifdb &lt;- MotifDb %&gt;% subset(organism == "Hsapiens")
+param &lt;- MulticoreParam(workers = 15, progressbar = TRUE, stop.on.error = TRUE)
+
+results &lt;- motifbreakR(
+  snpList = snps.mb,
+  filterp = TRUE,
+  pwmList = hg_motifdb,
+  threshold = 0.001,
+  method = "default",
+  BPPARAM = param
+)
+results &lt;- calculatePvalue(results, BPPARAM = MulticoreParam(workers = 6))
+saveRDS(results, "data/motifbreak/motifbreak_results.rds")</code></pre>
+        </article>
+      </section>
+
+      <section id="plotting">
+        <h2>画图工具箱</h2>
+
+        <article class="recipe searchable" id="stack-bar">
+          <header>
+            <div>
+              <h3>堆叠柱状图</h3>
+              <p>输入 long-format dataframe：x、y、hue 三列。x/hue 建议先转成有序 categorical 控制顺序。</p>
+            </div>
+            <div class="tags"><span class="tag">barplot</span></div>
+          </header>
+          <pre><code>import numpy as np
+import pandas as pd
+
+def stack_barplot(data, x, y, hue, palette, ax, width=0.7, reverse=True):
+    df = data.copy()
+    df[x] = pd.Categorical(df[x], ordered=True)
+    df[hue] = pd.Categorical(df[hue], ordered=True)
+
+    x_order = df[x].cat.categories
+    hue_order = df[hue].cat.categories[::-1] if reverse else df[hue].cat.categories
+    mat = df.pivot(index=x, columns=hue, values=y).reindex(index=x_order, columns=hue_order).fillna(0)
+
+    bottom = np.zeros(len(x_order))
+    for label in hue_order:
+        vals = mat[label].values
+        ax.bar(x=x_order, height=vals, bottom=bottom, width=width, color=palette[label], label=label)
+        bottom += vals
+
+    ax.legend(loc="upper left", frameon=False, bbox_to_anchor=(0.95, 1), ncols=2, fontsize=8)
+    ax.grid(False)
+    return ax</code></pre>
+        </article>
+
+        <article class="recipe searchable" id="boxplot-p">
+          <header>
+            <div>
+              <h3>带 P 值 Boxplot</h3>
+            </div>
+            <div class="tags"><span class="tag">boxplot</span><span class="tag">statistics</span></div>
+          </header>
+          <pre><code>import numpy as np
+import seaborn as sns
+from scipy import stats
+from itertools import combinations
+
+def p_to_star(p):
+    if np.isnan(p) or p > 0.05:
+        return "ns"
+    if p > 0.01:
+        return "*"
+    if p > 0.001:
+        return "**"
+    if p > 0.0001:
+        return "***"
+    return "****"
+
+def stat_test(data1, data2, method="t-test", alternative="two-sided"):
+    if method == "t-test":
+        _, p = stats.ttest_ind(data1, data2, equal_var=False, alternative=alternative, nan_policy="omit")
+    elif method in ["wilcoxon", "mannwhitney"]:
+        _, p = stats.mannwhitneyu(data1, data2, alternative=alternative)
+    else:
+        raise ValueError("method should be 't-test' or 'mannwhitney'")
+    return p, p_to_star(p)
+
+def boxplot_with_p(df, x, y, ax, hue=None, pairs=None, order=None, hue_order=None,
+                   palette=None, method="t-test", x_rotation=90):
+    sns.boxplot(data=df, x=x, y=y, hue=hue, order=order, hue_order=hue_order,
+                palette=palette, ax=ax, width=0.8, linewidth=0.8, flierprops={"marker": "."})
+    ax.grid(False)
+    ax.tick_params(axis="x", rotation=x_rotation)
+
+    if pairs is None:
+        values = df[hue].dropna().unique() if hue else df[x].dropna().unique()
+        pairs = list(combinations(values, 2))
+
+    y_min, y_max = df[y].min(), df[y].max()
+    step = 0.08 * (y_max - y_min)
+    y0 = y_max + step
+
+    if hue is None:
+        labels = [t.get_text() for t in ax.get_xticklabels()]
+        xpos = {lab: i for i, lab in enumerate(labels)}
+        for i, (a, b) in enumerate(pairs):
+            p, mark = stat_test(df.loc[df[x] == a, y], df.loc[df[x] == b, y], method=method)
+            yy = y0 + i * step
+            ax.plot([xpos[a], xpos[a], xpos[b], xpos[b]], [yy, yy + step / 4, yy + step / 4, yy], c="k", lw=0.8)
+            ax.text((xpos[a] + xpos[b]) / 2, yy + step / 4, mark, ha="center", va="bottom")
+    return ax</code></pre>
+        </article>
+
+        <article class="recipe searchable" id="heatmap-color">
+          <header>
+            <div>
+              <h3>带 Row Color 的 Heatmap</h3>
+              <p>适合 pseudobulk 表达矩阵、通路矩阵或 GO/DEG 矩阵。</p>
+            </div>
+            <div class="tags"><span class="tag">heatmap</span></div>
+          </header>
+          <pre><code>import seaborn as sns
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+
+def add_rowcolor_legend(g, color_dicts, bbox_to_anchor=(1.05, 1.05)):
+    patches = []
+    for title, cmap in color_dicts.items():
+        patches.extend([mpatches.Patch(color=color, label=f"{title}: {label}") for label, color in cmap.items()])
+    g.ax_heatmap.legend(handles=patches, bbox_to_anchor=bbox_to_anchor, loc="upper left", frameon=False)
+
+row_colors = pd.DataFrame({
+    "Cell type": exp_mat.index.get_level_values("celltype").map(celltype_color),
+    "Condition": exp_mat.index.get_level_values("condition").map(condition_color),
+}, index=exp_mat.index)
+
+g = sns.clustermap(
+    exp_mat[genes],
+    method="ward",
+    row_cluster=False,
+    col_cluster=True,
+    cmap="viridis",
+    figsize=(9, 5),
+    vmax=2,
+    vmin=-2,
+    cbar_pos=(1.1, 0.2, 0.01, 0.1),
+    dendrogram_ratio=0.05,
+    xticklabels=True,
+    yticklabels=False,
+    row_colors=row_colors,
+    colors_ratio=0.02,
+)
+g.ax_heatmap.grid(False)
+g.ax_row_colors.grid(False)
+add_rowcolor_legend(g, {"celltype": celltype_color, "condition": condition_color})
+plt.savefig("figures/heatmap_rowcolor.pdf", bbox_inches="tight")</code></pre>
+        </article>
+
+        <article class="recipe searchable" id="go-barplot">
+          <header>
+            <div>
+              <h3>GO Barplot</h3>
+              <p>适合左右方向混合的 GO 条形图，负值标签放左侧，正值标签放右侧。</p>
+            </div>
+            <div class="tags"><span class="tag">GO</span><span class="tag">barplot</span></div>
+          </header>
+          <pre><code>fig, ax = plt.subplots(figsize=(5, 4))
+ax.barh(y=go_df["Description"], width=go_df["-LogP"], color=go_df["color"])
+
+for i, row in go_df.reset_index(drop=True).iterrows():
+    if row["-LogP"] >= 0:
+        ax.text(0.1, i, row["Description"], ha="left", va="center")
+    else:
+        ax.text(-0.1, i, row["Description"], ha="right", va="center")
+
+ax.grid(False)
+ax.set(ylabel="", yticks=[], xlabel="-log(P value)")
+ax.spines[["top", "left", "right"]].set_visible(False)
+ax.set_xticklabels([abs(x) for x in ax.get_xticks()])
+fig.savefig("figures/go_barplot.pdf", bbox_inches="tight")</code></pre>
+        </article>
+
+        <article class="recipe searchable" id="joint-heatmap">
+          <header>
+            <div>
+              <h3>复合 Heatmap</h3>
+              <p>主 heatmap 加顶部 column sum 和右侧 row sum，适合 CellChat pathway-LR count 展示。</p>
+            </div>
+            <div class="tags"><span class="tag">heatmap</span><span class="tag">CellChat</span></div>
+          </header>
+          <pre><code>import matplotlib.pyplot as plt
+from matplotlib.gridspec import GridSpec
+
+def count_joint_heatmap(data, source_col, target_col, source_label, value_col="pathway_name",
+                        vmax=None, color="#c2410c", figsize=(5, 5), top=20):
+    df = data.loc[data[source_col] == source_label]
+    mat = (
+        df[[target_col, value_col]]
+        .value_counts()
+        .to_frame("count")
+        .reset_index()
+        .pivot(index=value_col, columns=target_col, values="count")
+        .fillna(0)
+    )
+    col_sum = mat.sum(axis=0).sort_values(ascending=False)
+    row_sum = mat.sum(axis=1).sort_values(ascending=False)
+    mat = mat.loc[row_sum.index, col_sum.index]
+    if top:
+        mat = mat.iloc[:top]
+        row_sum = row_sum.iloc[:top]
+
+    fig = plt.figure(figsize=figsize)
+    gs = GridSpec(2, 2, width_ratios=[mat.shape[1], 1.5], height_ratios=[1.5, mat.shape[0]], wspace=0.02, hspace=0.02)
+
+    ax_heat = plt.subplot(gs[1, 0])
+    mesh = ax_heat.pcolormesh(mat.columns, mat.index, mat.values, cmap="Reds", shading="nearest",
+                              vmin=0, vmax=vmax, edgecolors="w", lw=.5)
+    ax_heat.tick_params(axis="x", labelrotation=90, left=False, bottom=False)
+    ax_heat.grid(False)
+
+    ax_col = plt.subplot(gs[0, 0], sharex=ax_heat)
+    col_sum.plot(kind="bar", color=color, ax=ax_col, width=0.8)
+    ax_col.grid(False)
+    ax_col.spines[["top", "right"]].set_visible(False)
+
+    ax_row = plt.subplot(gs[1, 1], sharey=ax_heat)
+    row_sum.plot(kind="barh", color=color, ax=ax_row, width=0.8)
+    ax_row.invert_yaxis()
+    ax_row.grid(False)
+    ax_row.spines[["top", "right"]].set_visible(False)
+
+    cax = fig.add_axes([0.05, 0.05, 0.15, 0.015])
+    plt.colorbar(mesh, cax=cax, orientation="horizontal", label="Counts")
+    return fig, mat</code></pre>
+        </article>
+      </section>
+
+      <section id="software">
+        <h2>常用软件与资料</h2>
+        <div class="table-wrap searchable">
+          <table>
+            <thead>
+              <tr>
+                <th>软件名称</th>
+                <th>主要用途</th>
+                <th>文献</th>
+                <th>网站</th>
+                <th>官方教程</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Cell Ranger / Cell Ranger ARC</td><td>10x scRNA-seq、VDJ、Multiome 原始数据处理</td><td>-</td><td><a href="https://www.10xgenomics.com/support/software/cell-ranger">Cell Ranger</a><br><a href="https://www.10xgenomics.com/support/software/cell-ranger-arc">Cell Ranger ARC</a></td><td><a href="https://www.10xgenomics.com/support/software/cell-ranger/latest/analysis/running-pipelines/cr-multi">cellranger multi</a><br><a href="https://www.10xgenomics.com/support/software/cell-ranger-arc/latest/analysis/running-pipelines/command-line-arguments">ARC command line</a></td></tr>
+              <tr><td>Scanpy</td><td>Python 单细胞 RNA 预处理、降维、聚类、可视化</td><td><a href="https://doi.org/10.1186/s13059-017-1382-0">Wolf et al., Genome Biology, 2018</a></td><td><a href="https://scanpy.readthedocs.io/">scanpy.readthedocs.io</a></td><td><a href="https://scanpy.readthedocs.io/en/stable/tutorials/index.html">Scanpy tutorials</a></td></tr>
+              <tr><td>AnnData</td><td>单细胞矩阵对象与 <code>h5ad</code> 文件格式</td><td><a href="https://doi.org/10.21105/joss.04371">Virshup et al., JOSS, 2024</a></td><td><a href="https://anndata.readthedocs.io/">anndata.readthedocs.io</a></td><td><a href="https://anndata.readthedocs.io/en/stable/tutorials/index.html">AnnData tutorials</a></td></tr>
+              <tr><td>Seurat</td><td>R 单细胞分析、标签转移、WNN、多模态整合</td><td><a href="https://doi.org/10.1016/j.cell.2019.05.031">Stuart et al., Cell, 2019</a><br><a href="https://doi.org/10.1016/j.cell.2021.04.048">Hao et al., Cell, 2021</a></td><td><a href="https://satijalab.org/seurat/">satijalab.org/seurat</a></td><td><a href="https://satijalab.org/seurat/articles/pbmc3k_tutorial.html">PBMC tutorial</a><br><a href="https://satijalab.org/seurat/articles/multimodal_reference_mapping.html">Reference mapping</a></td></tr>
+              <tr><td>scVI / scvi-tools</td><td>深度生成模型、批次校正、整合、reference mapping</td><td><a href="https://doi.org/10.1038/s41592-018-0229-2">Lopez et al., Nature Methods, 2018</a><br><a href="https://doi.org/10.1038/s41587-021-01206-w">Gayoso et al., Nature Biotechnology, 2022</a></td><td><a href="https://scvi-tools.org/">scvi-tools.org</a></td><td><a href="https://docs.scvi-tools.org/en/stable/tutorials/index.html">scvi-tools tutorials</a></td></tr>
+              <tr><td>Signac</td><td>R 单细胞 ATAC、peak matrix、motif 和 chromatin 分析</td><td><a href="https://doi.org/10.1038/s41592-021-01282-5">Stuart et al., Nature Methods, 2021</a></td><td><a href="https://stuartlab.org/signac/">stuartlab.org/signac</a></td><td><a href="https://stuartlab.org/signac/articles/pbmc_vignette.html">PBMC scATAC tutorial</a></td></tr>
+              <tr><td>SnapATAC2</td><td>Python 单细胞 ATAC 预处理、LSI、peak calling、DAR</td><td><a href="https://doi.org/10.1038/s41592-023-02139-9">Zhang et al., Nature Methods, 2024</a></td><td><a href="https://scverse.org/SnapATAC2/">scverse.org/SnapATAC2</a></td><td><a href="https://scverse.org/SnapATAC2/tutorials/index.html">SnapATAC2 tutorials</a></td></tr>
+              <tr><td>MACS3</td><td>ATAC/ChIP-seq peak calling</td><td><a href="https://doi.org/10.1186/gb-2008-9-9-r137">Zhang et al., Genome Biology, 2008</a></td><td><a href="https://macs3-project.github.io/MACS/">MACS3 documentation</a></td><td><a href="https://macs3-project.github.io/MACS/docs/callpeak.html">callpeak tutorial</a></td></tr>
+              <tr><td>Harmony</td><td>批次校正和数据整合</td><td><a href="https://doi.org/10.1038/s41592-019-0619-0">Korsunsky et al., Nature Methods, 2019</a></td><td><a href="https://portals.broadinstitute.org/harmony/">Harmony</a></td><td><a href="https://portals.broadinstitute.org/harmony/articles/quickstart.html">Quickstart</a></td></tr>
+              <tr><td>scDblFinder</td><td>单细胞 doublet 检测</td><td><a href="https://doi.org/10.12688/f1000research.73600.2">Germain et al., F1000Research, 2021</a></td><td><a href="https://bioconductor.org/packages/release/bioc/html/scDblFinder.html">Bioconductor scDblFinder</a></td><td><a href="https://bioconductor.org/packages/release/bioc/vignettes/scDblFinder/inst/doc/scDblFinder.html">scDblFinder vignette</a></td></tr>
+              <tr><td>Souporcell</td><td>无参考基因型的混样拆分和 doublet 标注</td><td><a href="https://doi.org/10.1038/s41592-020-0820-1">Heaton et al., Nature Methods, 2020</a></td><td><a href="https://github.com/wheaton5/souporcell">GitHub souporcell</a></td><td><a href="https://github.com/wheaton5/souporcell#usage">Usage</a></td></tr>
+              <tr><td>Dandelion</td><td>BCR/TCR VDJ 重注释、克隆、突变、多样性分析</td><td><a href="https://www.nature.com/articles/s41587-023-01734-7">Suo et al., Nature Biotechnology, 2023</a></td><td><a href="https://sc-dandelion.readthedocs.io/">sc-dandelion.readthedocs.io</a></td><td><a href="https://sc-dandelion.readthedocs.io/en/latest/notebooks/base/1_dandelion_preprocessing-10x_data.html">10x VDJ preprocessing</a></td></tr>
+              <tr><td>CellTypist</td><td>基于预训练模型的自动细胞类型注释</td><td><a href="https://doi.org/10.1126/science.abl5197">Domínguez Conde et al., Science, 2022</a></td><td><a href="https://www.celltypist.org/">celltypist.org</a></td><td><a href="https://celltypist.readthedocs.io/en/latest/notebook/celltypist_tutorial.html">CellTypist tutorial</a></td></tr>
+              <tr><td>scArches / scPoli</td><td>参考图谱映射、query-to-reference label transfer</td><td><a href="https://doi.org/10.1038/s41587-021-01001-7">Lotfollahi et al., Nature Biotechnology, 2022</a><br><a href="https://doi.org/10.1038/s41592-023-01969-3">De Donno et al., Nature Methods, 2023</a></td><td><a href="https://docs.scarches.org/">docs.scarches.org</a></td><td><a href="https://docs.scarches.org/en/latest/scpoli_surgery_pipeline.html">scPoli surgery pipeline</a></td></tr>
+              <tr><td>Squidpy</td><td>空间邻域、空间自相关、图像与空间转录组分析</td><td><a href="https://doi.org/10.1038/s41592-021-01358-2">Palla et al., Nature Methods, 2022</a></td><td><a href="https://squidpy.readthedocs.io/">squidpy.readthedocs.io</a></td><td><a href="https://squidpy.readthedocs.io/en/stable/notebooks/tutorials/index.html">Squidpy tutorials</a></td></tr>
+              <tr><td>cell2location</td><td>Visium / 空间转录组细胞类型丰度推断</td><td><a href="https://doi.org/10.1038/s41587-021-01139-4">Kleshchevnikov et al., Nature Biotechnology, 2022</a></td><td><a href="https://cell2location.readthedocs.io/">cell2location.readthedocs.io</a></td><td><a href="https://cell2location.readthedocs.io/en/latest/notebooks/cell2location_tutorial.html">cell2location tutorial</a></td></tr>
+              <tr><td>CellCharter</td><td>空间组学中细胞邻域、空间 niche 和组织域识别</td><td><a href="https://doi.org/10.1038/s41588-023-01588-4">Varrone et al., Nature Genetics, 2024</a></td><td><a href="https://github.com/CSOgroup/cellcharter">GitHub CellCharter</a></td><td><a href="https://cellcharter.readthedocs.io/en/latest/index.html">CellCharter documentation</a></td></tr>
+              <tr><td>MAGIC</td><td>单细胞表达矩阵扩散平滑和 imputation</td><td><a href="https://doi.org/10.1016/j.cell.2018.05.061">van Dijk et al., Cell, 2018</a></td><td><a href="https://magic.readthedocs.io/">magic.readthedocs.io</a></td><td><a href="https://magic.readthedocs.io/en/stable/">MAGIC documentation</a></td></tr>
+              <tr><td>CellChat</td><td>细胞通讯、配体-受体互作和通路层面通讯网络</td><td><a href="https://doi.org/10.1038/s41467-021-21246-9">Jin et al., Nature Communications, 2021</a></td><td><a href="https://github.com/jinworks/CellChat">GitHub CellChat</a></td><td><a href="https://github.com/jinworks/CellChat/tree/main/tutorial">CellChat tutorials</a></td></tr>
+              <tr><td>NicheNet / nichenetr</td><td>配体活性预测、ligand-target 解释</td><td><a href="https://doi.org/10.1038/s41592-019-0667-5">Browaeys et al., Nature Methods, 2020</a></td><td><a href="https://github.com/saeyslab/nichenetr">GitHub nichenetr</a></td><td><a href="https://github.com/saeyslab/nichenetr/tree/master/vignettes">NicheNet vignettes</a></td></tr>
+              <tr><td>pycisTopic</td><td>scATAC topic modeling、candidate enhancer 和 motif 前处理</td><td><a href="https://www.nature.com/articles/s41592-023-01938-4">Bravo González-Blas et al., Nature Methods, 2023</a></td><td><a href="https://pycistopic.readthedocs.io/">pycistopic.readthedocs.io</a></td><td><a href="https://pycistopic.readthedocs.io/en/latest/notebooks/human_cerebellum.html">pycisTopic tutorial</a></td></tr>
+              <tr><td>SCENIC+</td><td>enhancer-driven gene regulatory network 推断</td><td><a href="https://www.nature.com/articles/s41592-023-01938-4">Bravo González-Blas et al., Nature Methods, 2023</a></td><td><a href="https://scenicplus.readthedocs.io/">scenicplus.readthedocs.io</a></td><td><a href="https://scenicplus.readthedocs.io/en/latest/tutorials.html">SCENIC+ tutorials</a></td></tr>
+              <tr><td>LINGER</td><td>单细胞多组学基因调控网络推断</td><td><a href="https://www.nature.com/articles/s41587-024-02182-7">Yuan et al., Nature Biotechnology, 2024</a></td><td><a href="https://github.com/Durenlab/LINGER">GitHub LINGER</a></td><td><a href="https://github.com/Durenlab/LINGER/blob/main/docs/User_guide.md">User guide</a></td></tr>
+              <tr><td>ArchR</td><td>scATAC-seq 分析、Arrow files、peak-to-gene links</td><td><a href="https://doi.org/10.1038/s41588-021-00790-6">Granja et al., Nature Genetics, 2021</a></td><td><a href="https://www.archrproject.com/">archrproject.com</a></td><td><a href="https://www.archrproject.com/bookdown/">ArchR bookdown</a></td></tr>
+              <tr><td>motifbreakR</td><td>SNP 对转录因子 motif 结合的影响评估</td><td><a href="https://doi.org/10.1093/bioinformatics/btv470">Coetzee et al., Bioinformatics, 2015</a></td><td><a href="https://bioconductor.org/packages/release/bioc/html/motifbreakR.html">Bioconductor motifbreakR</a></td><td><a href="https://bioconductor.org/packages/release/bioc/html/motifbreakR.html">Package documentation</a></td></tr>
+              <tr><td>fgwas</td><td>GWAS annotation enrichment 和功能注释富集</td><td><a href="https://www.cell.com/ajhg/fulltext/S0002-9297(14)00263-8">Pickrell, American Journal of Human Genetics, 2014</a></td><td><a href="https://github.com/joepickrell/fgwas">GitHub fgwas</a></td><td><a href="https://github.com/joepickrell/fgwas#example">fgwas example</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    function inferLanguage(text) {
+      if (/library\(|<-|ggplot|theme_classic|saveRDS|readRDS/.test(text)) return "r";
+      if (/^#!\/bin\/bash|cellranger|parallel -j|export |conda activate|lftp |wget |cat .*parallel/m.test(text)) return "bash";
+      return "python";
+    }
+
+    function escapeHtml(text) {
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
+    function addCopyButton(pre) {
+      if (pre.parentElement.classList.contains("code-wrap")) return;
+      const wrapper = document.createElement("div");
+      wrapper.className = "code-wrap";
+      pre.parentNode.insertBefore(wrapper, pre);
+      wrapper.appendChild(pre);
+
+      const button = document.createElement("button");
+      button.className = "copy-btn";
+      button.type = "button";
+      button.textContent = "复制";
+      button.addEventListener("click", async () => {
+        const code = pre.querySelector("code").textContent;
+        await navigator.clipboard.writeText(code);
+        button.textContent = "已复制";
+        button.classList.add("copied");
+        setTimeout(() => {
+          button.textContent = "复制";
+          button.classList.remove("copied");
+        }, 1200);
+      });
+      wrapper.appendChild(button);
+    }
+
+    function highlightCode(codeEl) {
+      const lang = inferLanguage(codeEl.textContent);
+      const pre = codeEl.closest("pre");
+      if (pre) pre.dataset.lang = lang;
+
+      const stash = [];
+      let text = codeEl.textContent;
+      const save = (html) => {
+        const key = `@@TOK${stash.length}@@`;
+        stash.push(html);
+        return key;
+      };
+
+      text = text.replace(/("""[\s\S]*?"""|'''[\s\S]*?'''|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')/g, m =>
+        save(`<span class="tok-string">${escapeHtml(m)}</span>`)
+      );
+
+      text = text.replace(/(^|\s)(#.*)$/gm, (_, lead, comment) =>
+        `${lead}${save(`<span class="tok-comment">${escapeHtml(comment)}</span>`)}`
+      );
+
+      let html = escapeHtml(text);
+      html = html.replace(/\b(\d+(?:\.\d+)?)\b/g, '<span class="tok-number">$1</span>');
+
+      const commonBuiltins = "print|len|range|list|set|dict|sorted|min|max|sum|open|copy|head|subset|data\\.frame|read\\.csv|write\\.csv|factor|unique|c";
+      html = html.replace(new RegExp(`\\b(${commonBuiltins})\\b`, "g"), '<span class="tok-builtin">$1</span>');
+
+      if (lang === "python") {
+        html = html.replace(/\b(import|from|as|def|return|for|in|if|elif|else|with|lambda|class|try|except|raise|True|False|None|and|or|not|is|while|break|continue)\b/g, '<span class="tok-keyword">$1</span>');
+      } else if (lang === "r") {
+        html = html.replace(/\b(function|library|if|else|for|in|return|TRUE|FALSE|NULL|subset|factor|levels|lapply|sapply)\b/g, '<span class="tok-keyword">$1</span>');
+        html = html.replace(/(&lt;-|%&gt;%)/g, '<span class="tok-keyword">$1</span>');
+      } else {
+        html = html.replace(/\b(export|for|do|done|if|then|fi|cd|mkdir|cat|parallel|wget|lftp|cellranger|cellranger-arc|conda|python)\b/g, '<span class="tok-keyword">$1</span>');
+        html = html.replace(/(\$\{?[A-Za-z_][A-Za-z0-9_]*\}?)/g, '<span class="tok-var">$1</span>');
+      }
+
+      stash.forEach((value, i) => {
+        html = html.replaceAll(`@@TOK${i}@@`, value);
+      });
+      codeEl.innerHTML = html;
+      if (pre) addCopyButton(pre);
+    }
+
+    document.querySelectorAll("a[href^='http']").forEach((link) => {
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+    });
+
+    document.querySelectorAll("pre code").forEach(highlightCode);
+
+    const search = document.getElementById("search");
+    const items = Array.from(document.querySelectorAll(".searchable"));
+    search.addEventListener("input", () => {
+      const q = search.value.trim().toLowerCase();
+      for (const item of items) {
+        item.classList.toggle("hidden", q && !item.textContent.toLowerCase().includes(q));
+      }
+    });
+  </script>
+</body>
+</html>
