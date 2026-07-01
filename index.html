@@ -19,20 +19,6 @@
     <!-- Academic theme -->
     <link rel="stylesheet" href="css/academic.css">
 
-    <!-- Password protection for CV -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-    <script>
-    function checkPassword() {
-        var pwd = prompt("Please enter the password to access the résumé:");
-        if (!pwd) return;
-        var hash = CryptoJS.SHA256(pwd).toString();
-        if (hash === "dfee165592278a0b7a278b4727d8880ea1e845d01f5db7bc37a03ac6d4230faf") {
-            window.open("protected/cv_za.pdf", "_blank");
-        } else {
-            alert("Incorrect password. Please try again.");
-        }
-    }
-    </script>
 </head>
 <body>
 
@@ -50,7 +36,6 @@
             <li><a href="#publications">Publications</a></li>
             <li><a href="#hobbies">Hobbies</a></li>
             <li><a href="#resources">Resources</a></li>
-            <li><a href="javascript:void(0)" onclick="checkPassword()" class="nav-cv">Résumé</a></li>
         </ul>
     </div>
 </nav>
