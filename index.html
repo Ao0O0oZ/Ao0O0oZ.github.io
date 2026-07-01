@@ -66,12 +66,24 @@
             </ul>
             <div class="contact-info">
                 <span><i class="fa fa-envelope"></i> za666@mail.ustc.edu.cn</span>
-                <span><i class="fa fa-commenting"></i> WeChat: _Ao0O0oZ_</span>
+                <button type="button" class="wechat-toggle" id="wechatToggle" aria-expanded="false" aria-controls="wechatQr">
+                    <i class="fa fa-commenting"></i> WeChat
+                </button>
                 <span><i class="fa fa-github"></i> <a href="https://github.com/Ao0O0oZ" target="_blank" rel="noopener">github.com/Ao0O0oZ</a></span>
             </div>
         </div>
     </div>
 </section>
+
+<div class="wechat-modal" id="wechatQr" hidden>
+    <button type="button" class="wechat-modal-backdrop" id="wechatBackdrop" aria-label="Close WeChat QR code"></button>
+    <div class="wechat-modal-card" role="dialog" aria-modal="true" aria-labelledby="wechatTitle">
+        <button type="button" class="wechat-close" id="wechatClose" aria-label="Close WeChat QR code">&times;</button>
+        <h3 id="wechatTitle">WeChat</h3>
+        <img src="data:image/png;base64,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" alt="WeChat QR code">
+        <p>ID: _Ao0O0oZ_</p>
+    </div>
+</div>
 
 <!-- ===================== PUBLICATIONS ===================== -->
 <section id="publications" class="section section-alt">
@@ -258,6 +270,10 @@
     var links   = document.getElementById('navLinks');
     var sections = Array.from(document.querySelectorAll('section[id]'));
     var navAs    = Array.from(document.querySelectorAll('.nav-links a[href^="#"]'));
+    var wechatToggle = document.getElementById('wechatToggle');
+    var wechatQr = document.getElementById('wechatQr');
+    var wechatBackdrop = document.getElementById('wechatBackdrop');
+    var wechatClose = document.getElementById('wechatClose');
 
     // Hamburger toggle
     toggle.addEventListener('click', function () {
@@ -268,6 +284,25 @@
     links.addEventListener('click', function (e) {
         if (e.target.tagName === 'A') links.classList.remove('open');
     });
+
+    if (wechatToggle && wechatQr) {
+        function openWechatQr() {
+            wechatQr.hidden = false;
+            wechatToggle.setAttribute('aria-expanded', 'true');
+        }
+
+        function closeWechatQr() {
+            wechatQr.hidden = true;
+            wechatToggle.setAttribute('aria-expanded', 'false');
+        }
+
+        wechatToggle.addEventListener('click', openWechatQr);
+        if (wechatBackdrop) wechatBackdrop.addEventListener('click', closeWechatQr);
+        if (wechatClose) wechatClose.addEventListener('click', closeWechatQr);
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && !wechatQr.hidden) closeWechatQr();
+        });
+    }
 
     // Sticky nav + scroll-spy
     window.addEventListener('scroll', function () {
