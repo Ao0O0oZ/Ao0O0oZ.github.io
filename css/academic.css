@@ -157,6 +157,7 @@ a:hover { text-decoration: underline; }
     color: rgba(248, 239, 218, 0.5);
     padding: 0 1.5rem;
     max-width: 700px;
+    transform: translateY(28px);
 }
 
 .hero-label {
