@@ -1,5 +1,7 @@
 # 个人主页本地修改指南
 
+`codex resume 019f17e0-c473-7962-bd8b-418461162aa0`
+
 ## 目录结构
 
 ```
@@ -8,15 +10,13 @@ homepage/
 ├── css/
 │   └── academic.css            # 样式文件（颜色、字体、布局在这里改）
 ├── images/
-│   ├── banner-images/
-│   │   └── banner-image-1.jpeg # 首屏背景图
+│   ├── banner-images/          # 首屏背景图
 │   ├── gallery-images/         # 爱好板块的图片
 │   ├── publication-images/     # 论文配图
 │   └── resources-images/       # 资源板块的图片
-├── protected/
-│   └── cv_za.pdf               # 简历（密码保护）
 ├── resources/
-│   └── palette.pdf             # 资源下载文件
+│   ├── bioinformatics_cookbook.html
+│   └── palette.html            # 资源页面
 └── fonts/ js/                  # 字体和脚本，一般不需要改
 ```
 
@@ -36,12 +36,46 @@ open ./index.html
 
 ---
 
-## 发布到 GitHub
+## 通过 SSH 发布到 GitHub
+
+本仓库应使用 SSH 远程地址：
+
+```bash
+git remote -v
+# origin  git@github.com:Ao0O0oZ/Ao0O0oZ.github.io.git (fetch)
+# origin  git@github.com:Ao0O0oZ/Ao0O0oZ.github.io.git (push)
+```
+
+如果显示的是 `https://github.com/...`，改成 SSH：
+
+```bash
+git remote set-url origin git@github.com:Ao0O0oZ/Ao0O0oZ.github.io.git
+```
+
+首次使用 SSH 前，确认 GitHub 已接受本机公钥：
+
+```bash
+ssh -T git@github.com
+```
+
+成功时会看到类似：
+
+```text
+Hi Ao0O0oZ! You've successfully authenticated, but GitHub does not provide shell access.
+```
+
+如果出现 `Permission denied (publickey)`，把本机公钥添加到 GitHub：
+
+```bash
+cat ~/.ssh/id_ed25519.pub
+```
+
+复制输出内容，添加到 GitHub: Settings -> SSH and GPG keys -> New SSH key。
 
 本地改好、预览满意后，执行以下命令发布：
 
 ```bash
-cd /pathto/homepage
+cd /path/to/homepage
 
 # 1. 暂存所有改动
 git add -A
@@ -50,12 +84,14 @@ git add -A
 git commit -m "更新论文信息"
 
 # 3. 推送到 GitHub
-git push
+git push origin main
 ```
 
 推送后约 **30–60 秒**，网站自动更新，地址：https://ao0o0oz.github.io/
 
 可以在 https://github.com/Ao0O0oZ/Ao0O0oZ.github.io/actions 查看部署进度。
+
+> **注意：** 不要把私人简历、二维码原图、证件、token、密码等敏感文件提交到公开仓库。`.gitignore` 已忽略 `protected/*.pdf`。
 
 ---
 
@@ -193,18 +229,6 @@ git push
 
 ---
 
-### 更新简历（CV）
-
-直接替换 `protected/cv_za.pdf` 文件，文件名保持不变，密码不变。
-
-如需修改密码，需要将新密码的 SHA-256 哈希值替换到 `index.html` 顶部的 `correctHash` 变量。可以用以下命令生成哈希：
-
-```bash
-echo -n "新密码" | shasum -a 256
-```
-
----
-
 ### 修改导航栏链接
 
 打开 `index.html`，找到 `<ul class="nav-links">` 修改链接文字或目标：
@@ -215,7 +239,6 @@ echo -n "新密码" | shasum -a 256
     <li><a href="#publications">Publications</a></li>
     <li><a href="#hobbies">Hobbies</a></li>
     <li><a href="#resources">Resources</a></li>
-    <li><a href="javascript:void(0)" onclick="checkPassword()" class="nav-cv">Résumé</a></li>
 </ul>
 ```
 
@@ -235,12 +258,12 @@ git diff
 # 只提交某个文件
 git add index.html
 git commit -m "更新简介"
-git push
+git push origin main
 
 # 提交所有改动
 git add -A
 git commit -m "描述"
-git push
+git push origin main
 
 # 查看提交历史
 git log --oneline
