@@ -178,6 +178,44 @@ git push origin main
 
 将 PDF 或其他文件放入 `resources/` 文件夹，然后在 `index.html` 找到 `id="resources"` 的 `<section>`，在 `resource-grid` 里添加：
 
+---
+
+### 添加 Icon Library 图标
+
+将新的 `.ai` 文件放入对应分类目录：
+
+```bash
+resources/icon_library/分类名/图标文件名.ai
+```
+
+例如：
+
+```bash
+resources/icon_library/cell_types/neutrophil.ai
+resources/icon_library/macromolecules/rna.ai
+resources/icon_library/schematic_diagram/lupus_nephritis_workflow.ai
+```
+
+然后运行脚本：
+
+```bash
+python3 scripts/update_icon_library.py
+```
+
+脚本会自动：
+
+- 扫描 `resources/icon_library/*/*.ai`
+- 为新增或更新的 `.ai` 文件生成网页缩略图
+- 更新 `resources/icon_library.html` 里的分类和图标列表
+
+如果想强制重新生成所有缩略图：
+
+```bash
+python3 scripts/update_icon_library.py --force-thumbs
+```
+
+注意：文件名建议只使用小写英文、数字和下划线，例如 `b_cell.ai`。页面上显示的名称会自动把下划线转换为空格并首字母大写。
+
 ```html
 <div class="resource-card">
     <div class="resource-image">

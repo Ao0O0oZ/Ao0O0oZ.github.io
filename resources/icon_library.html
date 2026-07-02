@@ -1,0 +1,610 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Scientific Icon Library</title>
+  <link rel="icon" href="../images/favicon.png">
+  <style>
+    :root {
+      --navy: #1a2744;
+      --blue: #2a6496;
+      --blue-light: #3a7cbd;
+      --accent: #c69c4a;
+      --text: #2c2c2c;
+      --muted: #666;
+      --bg: #f8f7f4;
+      --panel: #ffffff;
+      --line: #e4dfd3;
+      --soft: #f1efe8;
+      --shadow: 0 14px 36px rgba(46, 42, 35, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 8% -4%, rgba(58, 124, 189, 0.15), transparent 30rem),
+        linear-gradient(180deg, #fbfaf6 0%, var(--bg) 36rem);
+      font-family: "Source Sans 3", "Source Sans Pro", "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.6;
+    }
+
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    button, input { font: inherit; }
+
+    .shell {
+      width: min(100% - 2rem, 1240px);
+      margin: 0 auto;
+      padding: 28px 0 56px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 28px;
+    }
+
+    .back-link {
+      color: var(--navy);
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    .download-status {
+      min-height: 2.3rem;
+      display: inline-flex;
+      align-items: center;
+      padding: 0.42rem 0.85rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.82);
+      color: var(--muted);
+      font-size: 0.9rem;
+      white-space: nowrap;
+      box-shadow: 0 6px 16px rgba(46, 42, 35, 0.05);
+    }
+
+    .download-status.active {
+      border-color: rgba(42, 100, 150, 0.28);
+      color: var(--navy);
+      background: #e9f1f8;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 420px);
+      gap: 2rem;
+      align-items: end;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      margin: 0 0 0.55rem;
+      color: var(--navy);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.15rem, 5vw, 4.5rem);
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      max-width: 720px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.04rem;
+    }
+
+    .search-panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.78);
+      box-shadow: var(--shadow);
+      padding: 0.8rem;
+    }
+
+    .search-panel label {
+      display: block;
+      margin: 0 0 0.45rem;
+      color: var(--navy);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .search-row {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .search-row input {
+      width: 100%;
+      min-width: 0;
+      height: 2.7rem;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--text);
+      padding: 0 0.85rem;
+      outline: none;
+    }
+
+    .search-row input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(42, 100, 150, 0.12);
+    }
+
+    .clear-btn {
+      height: 2.7rem;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--soft);
+      color: var(--navy);
+      padding: 0 0.85rem;
+      cursor: pointer;
+    }
+
+    .filter-tabs {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      gap: 0.55rem;
+      overflow: auto;
+      margin: 0 -0.4rem 26px;
+      padding: 0.8rem 0.4rem;
+      background: rgba(248, 247, 244, 0.92);
+      backdrop-filter: blur(12px);
+    }
+
+    .filter-tabs button {
+      flex: 0 0 auto;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--navy);
+      padding: 0.45rem 0.9rem;
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.16s, border-color 0.16s, color 0.16s;
+    }
+
+    .filter-tabs button[aria-pressed="true"] {
+      border-color: var(--navy);
+      background: var(--navy);
+      color: #fff;
+    }
+
+    .section {
+      margin: 0 0 34px;
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 14px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 0.55rem;
+    }
+
+    .section-heading h2 {
+      margin: 0;
+      color: var(--navy);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.45rem;
+      letter-spacing: 0;
+    }
+
+    .count {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 16px;
+    }
+
+    .icon-card {
+      display: flex;
+      min-height: 178px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 10px 26px rgba(46, 42, 35, 0.06);
+      color: var(--text);
+      transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+    }
+
+    .icon-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(42, 100, 150, 0.32);
+      box-shadow: var(--shadow);
+      text-decoration: none;
+    }
+
+    .icon-inner {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .icon-preview {
+      display: grid;
+      place-items: center;
+      aspect-ratio: 1 / 0.78;
+      padding: 1rem;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(135deg, rgba(233, 241, 248, 0.78), rgba(255, 255, 255, 0.88)),
+        var(--soft);
+    }
+
+    .icon-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .icon-meta {
+      display: grid;
+      gap: 0.22rem;
+      padding: 0.78rem 0.85rem 0.85rem;
+    }
+
+    .icon-name {
+      color: var(--navy);
+      font-size: 0.96rem;
+      font-weight: 700;
+      line-height: 1.25;
+      overflow-wrap: anywhere;
+    }
+
+    .empty {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.78);
+      color: var(--muted);
+      padding: 1rem;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 860px) {
+      .hero {
+        grid-template-columns: 1fr;
+        gap: 1.1rem;
+      }
+
+      .filter-tabs { top: 0; }
+    }
+
+    @media (max-width: 560px) {
+      .shell {
+        width: min(100% - 1.25rem, 1240px);
+        padding-top: 18px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+        margin-bottom: 20px;
+      }
+
+      .download-status {
+        width: 100%;
+        justify-content: center;
+      }
+
+      h1 { font-size: 2.25rem; }
+
+      .search-row {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .clear-btn { width: 100%; }
+
+      .icon-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .icon-card { min-height: 158px; }
+      .icon-preview { padding: 0.75rem; }
+      .icon-name { font-size: 0.86rem; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div class="topbar">
+      <a class="back-link" href="../index.html#resources">Back to Resources</a>
+      <div class="download-status" id="downloadStatus">Click an icon to download the editable AI file</div>
+    </div>
+
+    <section class="hero" aria-labelledby="pageTitle">
+      <div>
+        <h1 id="pageTitle">Scientific Icon Library</h1>
+        <p>Editable scientific drawing icons created by Ao Zheng for research figures. Browse by category, search by name, and download the original Adobe Illustrator file from each thumbnail.</p>
+      </div>
+      <div class="search-panel">
+        <label for="search">Search icons</label>
+        <div class="search-row">
+          <input id="search" type="search" placeholder="Try: kidney, DNA, B cell, Visium">
+          <button class="clear-btn" type="button" id="clearSearch">Clear</button>
+        </div>
+      </div>
+    </section>
+
+    <nav class="filter-tabs" id="filters" aria-label="Icon category filters"></nav>
+    <div id="library"></div>
+    <div class="empty hidden" id="empty">No icons match the current search.</div>
+  </main>
+
+  <script>
+    const categories = [
+          {
+                "id": "human",
+                "title": "Human",
+                "icons": [
+                      "human_anterior",
+                      "head_lateral"
+                ]
+          },
+          {
+                "id": "species",
+                "title": "Species",
+                "icons": [
+                      "virus"
+                ]
+          },
+          {
+                "id": "tissues_and_organs",
+                "title": "Tissues and Organs",
+                "icons": [
+                      "tissue_sample",
+                      "ffpe_sample",
+                      "he_staining_sample",
+                      "ihc",
+                      "kidney",
+                      "mouth"
+                ]
+          },
+          {
+                "id": "cell_types",
+                "title": "Cell Types",
+                "icons": [
+                      "fibroblast",
+                      "myofibroblast",
+                      "smc",
+                      "pericyte",
+                      "podocyte",
+                      "endothelial",
+                      "epithelial",
+                      "injured_epitheial",
+                      "t",
+                      "b",
+                      "plasma",
+                      "macrophage"
+                ]
+          },
+          {
+                "id": "cell_structures",
+                "title": "Cell Structures",
+                "icons": [
+                      "nuclear",
+                      "mitochondria"
+                ]
+          },
+          {
+                "id": "macromolecules",
+                "title": "Macromolecules",
+                "icons": [
+                      "dna",
+                      "nucleosome",
+                      "ribosome",
+                      "collagen",
+                      "crispr_cas9",
+                      "nfkb",
+                      "tn5",
+                      "protein_with_gfp",
+                      "tcr_bcr",
+                      "tlr"
+                ]
+          },
+          {
+                "id": "lab_and_objects",
+                "title": "Lab and Objects",
+                "icons": [
+                      "biopsy_device",
+                      "slide",
+                      "well_plate",
+                      "petri_dish_with_cells",
+                      "ep_tube",
+                      "falcon_tube",
+                      "facs",
+                      "sequencer",
+                      "computer"
+                ]
+          },
+          {
+                "id": "technologies",
+                "title": "Technologies",
+                "icons": [
+                      "10x_genomics",
+                      "10x_visium",
+                      "nanopore_sequencing"
+                ]
+          },
+          {
+                "id": "graphs_and_symbols",
+                "title": "Graphs and Symbols",
+                "icons": [
+                      "human_symbol",
+                      "data",
+                      "heatmap"
+                ]
+          },
+          {
+                "id": "schematic_diagram",
+                "title": "Schematic Diagram",
+                "icons": [
+                      "nephron",
+                      "tlr_nfkb_pathway"
+                ]
+          }
+    ];
+
+    const labels = {
+      b: "B Cell",
+      crispr_cas9: "CRISPR-Cas9",
+      dna: "DNA",
+      ep_tube: "EP Tube",
+      ffpe_sample: "FFPE Sample",
+      he_staining_sample: "H&E Staining Sample",
+      head_lateral: "Head Lateral",
+      human_anterior: "Human Anterior",
+      injured_epitheial: "Injured Epithelial",
+      nuclear: "Nuclear",
+      smc: "SMC",
+      t: "T Cell",
+      nfkb: "NFκB",
+      tcr_bcr: "TCR & BCR",
+      tlr: "TLR",
+      tn5: "Tn5 Transposase",
+      ihc: "IHC",
+      facs: "FACS",
+      "10x_genomics": "10x Genomics",
+      "10x_visium": "10x Visium",
+      protein_with_gfp: "Protein with GFP",
+      tlr_nfkb_pathway: "TLR-NFκB Pathway",
+    };
+
+    const filters = document.getElementById("filters");
+    const library = document.getElementById("library");
+    const search = document.getElementById("search");
+    const clearSearch = document.getElementById("clearSearch");
+    const empty = document.getElementById("empty");
+    const downloadStatus = document.getElementById("downloadStatus");
+    let activeCategory = "all";
+
+    function titleCase(value) {
+      if (labels[value]) return labels[value];
+      return value
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, char => char.toUpperCase());
+    }
+
+    function iconMatches(icon, categoryTitle, query) {
+      if (!query) return true;
+      const haystack = `${icon} ${titleCase(icon)} ${categoryTitle}`.toLowerCase();
+      return haystack.includes(query);
+    }
+
+    function makeFilterButton(id, title) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.dataset.category = id;
+      button.setAttribute("aria-pressed", id === activeCategory ? "true" : "false");
+      button.textContent = title;
+      button.addEventListener("click", () => {
+        activeCategory = id;
+        render();
+      });
+      return button;
+    }
+
+    function renderFilters() {
+      filters.replaceChildren(
+        makeFilterButton("all", "All"),
+        ...categories.map(category => makeFilterButton(category.id, category.title))
+      );
+    }
+
+    function render() {
+      const query = search.value.trim().toLowerCase();
+      const sections = [];
+      let visibleCount = 0;
+
+      categories.forEach(category => {
+        if (activeCategory !== "all" && activeCategory !== category.id) return;
+
+        const icons = category.icons.filter(icon => iconMatches(icon, category.title, query));
+        if (!icons.length) return;
+
+        visibleCount += icons.length;
+        const section = document.createElement("section");
+        section.className = "section";
+        section.id = category.id;
+
+        const heading = document.createElement("div");
+        heading.className = "section-heading";
+        heading.innerHTML = `<h2>${category.title}</h2><span class="count">${icons.length} icons</span>`;
+
+        const grid = document.createElement("div");
+        grid.className = "icon-grid";
+
+        icons.forEach(icon => {
+          const name = titleCase(icon);
+          const link = document.createElement("a");
+          link.className = "icon-card";
+          link.href = `icon_library/${category.id}/${icon}.ai`;
+          link.download = `${icon}.ai`;
+          link.setAttribute("aria-label", `Download ${name} Adobe Illustrator file`);
+          link.innerHTML = `
+            <span class="icon-inner">
+              <span class="icon-preview">
+                <img src="icon_library_thumbs/${category.id}/${icon}.png" alt="${name} icon preview" loading="lazy">
+              </span>
+              <span class="icon-meta">
+                <span class="icon-name">${name}</span>
+              </span>
+            </span>
+          `;
+          link.addEventListener("click", () => {
+            downloadStatus.textContent = `Downloading ${name}.ai`;
+            downloadStatus.classList.add("active");
+            window.clearTimeout(downloadStatus.dataset.timer);
+            downloadStatus.dataset.timer = window.setTimeout(() => {
+              downloadStatus.textContent = "Click an icon to download the editable AI file";
+              downloadStatus.classList.remove("active");
+            }, 2200);
+          });
+          grid.appendChild(link);
+        });
+
+        section.append(heading, grid);
+        sections.push(section);
+      });
+
+      library.replaceChildren(...sections);
+      empty.classList.toggle("hidden", visibleCount !== 0);
+      renderFilters();
+    }
+
+    search.addEventListener("input", render);
+    clearSearch.addEventListener("click", () => {
+      search.value = "";
+      search.focus();
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>
