@@ -230,24 +230,13 @@
 <!-- ===================== FOOTER ===================== -->
 <footer id="footer">
     <div class="container">
-        <div class="visitor-widget" aria-label="Visitor statistics">
-            <div class="visitor-summary">
-                <span class="visitor-label">Visitors</span>
-                <img src="https://hits.sh/ao0o0oz.github.io.svg?style=flat-square&label=visitors&color=2a6496&labelColor=1a2744" alt="Visitor count">
-                <p>Approximate visits and visitor locations.</p>
-            </div>
-            <div class="visitor-map" aria-label="Visitor location map">
-                <script>
-                    var _wau = _wau || [];
-                    _wau.push(["map", "ao0o0ozgithubio", "qvo", "220", "110", "natural", "star-blue"]);
-                </script>
-                <script async src="https://waust.at/m.js"></script>
-                <noscript>Visitor map requires JavaScript.</noscript>
-            </div>
-        </div>
-        <p>&copy; 2026 Ao Zheng &middot; University of Science and Technology of China</p>
+        <p class="footer-line">
+            <span>&copy; 2026 Ao Zheng &middot; University of Science and Technology of China</span>
+            <span class="visitor-counter" aria-label="Visitor count">Visitors <span id="vercount_value_site_uv">--</span></span>
+        </p>
     </div>
 </footer>
+<script defer src="https://events.vercount.one/js"></script>
 
 <!-- Navigation behavior (vanilla JS — no jQuery required) -->
 <script>
