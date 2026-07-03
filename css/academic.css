@@ -805,7 +805,7 @@ a:hover { text-decoration: underline; }
         position: static;
         width: auto;
         max-height: 220px;
-        margin-top: 1.2rem;
+        margin: 1rem 0 0.9rem;
     }
 
     /* Pub layout stacks */

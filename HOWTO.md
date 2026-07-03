@@ -11,7 +11,6 @@ homepage/
 │   └── academic.css            # 样式文件（颜色、字体、布局在这里改）
 ├── images/
 │   ├── banner-images/          # 首屏背景图
-│   ├── gallery-images/         # 爱好板块的图片
 │   ├── publication-images/     # 论文配图
 │   └── resources-images/       # 资源板块的图片
 ├── resources/
