@@ -527,8 +527,9 @@ a:hover { text-decoration: underline; }
 }
 
 .pub-image {
-    flex: 1;
-    height: 180px;
+    flex: 0 0 clamp(220px, 28%, 340px);
+    aspect-ratio: 16 / 9;
+    min-height: 160px;
     flex-shrink: 0;
     background: transparent;
     border: none;
@@ -818,7 +819,9 @@ a:hover { text-decoration: underline; }
 
     .pub-image {
         width: 100%;
-        height: 180px;
+        flex-basis: auto;
+        min-height: 0;
+        aspect-ratio: 16 / 9;
     }
 
     /* Gallery: 2 columns on tablets */

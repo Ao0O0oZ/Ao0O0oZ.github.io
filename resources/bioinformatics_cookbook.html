@@ -21,6 +21,7 @@
       --code: #0d1424;
       --code-line: #17213a;
       --warn: #f8efe2;
+      --page-width: 88%;
     }
     * { box-sizing: border-box; }
     body {
@@ -67,7 +68,7 @@
     nav { display: grid; gap: 4px; margin-top: 18px; }
     nav a { display: block; padding: 7px 8px; border-radius: 6px; color: #e6edf5; font-size: 14px; }
     nav a:hover { background: rgba(58, 124, 189, 0.25); text-decoration: none; }
-    main { max-width: 1180px; width: 100%; margin: 0 auto; padding: 32px 28px 64px; }
+    main { width: var(--page-width); max-width: none; margin: 0 auto; padding: 32px 0 64px; }
     .hero, .card, .recipe, .table-wrap {
       background: var(--panel);
       border: 1px solid var(--line);
@@ -194,7 +195,7 @@
     }
     .hidden { display: none !important; }
     @media (min-width: 1200px) {
-      main { padding-left: 38px; padding-right: 38px; }
+      main { padding-left: 0; padding-right: 0; }
     }
     @media (max-width: 900px) {
       .layout { grid-template-columns: 1fr; }
@@ -206,7 +207,7 @@
         padding-bottom: 6px;
       }
       nav a { white-space: nowrap; }
-      main { padding: 18px 12px 40px; }
+      main { padding: 18px 0 40px; }
       .grid, .meta { grid-template-columns: 1fr; }
       .recipe header { display: block; }
       .hero { padding: 22px 18px; }

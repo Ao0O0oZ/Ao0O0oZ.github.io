@@ -18,6 +18,7 @@
       --line: #e4dfd3;
       --soft: #f1efe8;
       --shadow: 0 14px 36px rgba(46, 42, 35, 0.08);
+      --page-width: 88%;
     }
 
     * { box-sizing: border-box; }
@@ -37,7 +38,7 @@
     button, input { font: inherit; }
 
     .shell {
-      width: min(100% - 2rem, 1240px);
+      width: var(--page-width);
       margin: 0 auto;
       padding: 28px 0 56px;
     }
@@ -295,7 +296,6 @@
 
     @media (max-width: 560px) {
       .shell {
-        width: min(100% - 1.25rem, 1240px);
         padding-top: 18px;
       }
 
