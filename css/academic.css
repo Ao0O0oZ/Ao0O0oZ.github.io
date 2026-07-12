@@ -749,7 +749,7 @@ a:hover { text-decoration: underline; }
     opacity: 0.85;
 }
 
-#vercount_value_site_uv {
+#vercount_value_site_pv {
     color: rgba(248, 239, 218, 0.9);
     font-variant-numeric: tabular-nums;
 }
