@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A beginner-friendly Linux and Python course by Ao Zheng, presented as interactive Google Colab notebooks.">
+  <title>Linux &amp; Python Quick Start</title>
+  <link rel="icon" href="../images/favicon.png">
+  <style>
+    :root {
+      --navy: #1a2744;
+      --blue: #2a6496;
+      --blue-light: #3a7cbd;
+      --accent: #c69c4a;
+      --text: #2c2c2c;
+      --muted: #666;
+      --bg: #f8f7f4;
+      --panel: #fff;
+      --line: #e4dfd3;
+      --soft: #f1efe8;
+      --shadow: 0 14px 36px rgba(46, 42, 35, 0.08);
+      --page-width: 88%;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      background: var(--bg);
+      font-family: "Source Sans 3", "Source Sans Pro", "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.6;
+    }
+
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .shell {
+      width: var(--page-width);
+      margin: 0 auto;
+      padding: 28px 0 56px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 32px;
+    }
+
+    .back-link {
+      color: var(--navy);
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    .folder-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 2.3rem;
+      padding: 0.42rem 0.85rem;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--navy);
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .folder-link:hover {
+      border-color: rgba(42, 100, 150, 0.35);
+      text-decoration: none;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(250px, 340px);
+      gap: 2rem;
+      align-items: end;
+      margin-bottom: 30px;
+    }
+
+    .hero > * { min-width: 0; }
+
+    .eyebrow {
+      margin: 0 0 0.65rem;
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 820px;
+      margin: 0 0 0.65rem;
+      color: var(--navy);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.15rem, 5vw, 4.5rem);
+      line-height: 1.02;
+      letter-spacing: 0;
+      overflow-wrap: break-word;
+    }
+
+    .hero-copy {
+      max-width: 760px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.04rem;
+    }
+
+    .course-summary {
+      border-left: 3px solid var(--accent);
+      padding: 0.35rem 0 0.35rem 1rem;
+    }
+
+    .course-summary strong {
+      display: block;
+      margin-bottom: 0.18rem;
+      color: var(--navy);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.2rem;
+    }
+
+    .course-summary span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .course-nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      gap: 0.55rem;
+      overflow-x: auto;
+      margin: 0 -0.4rem 28px;
+      padding: 0.8rem 0.4rem;
+      background: rgba(248, 247, 244, 0.94);
+      backdrop-filter: blur(12px);
+    }
+
+    .course-nav a {
+      flex: 0 0 auto;
+      padding: 0.45rem 0.85rem;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--panel);
+      color: var(--navy);
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .course-nav a:hover {
+      border-color: rgba(42, 100, 150, 0.35);
+      text-decoration: none;
+    }
+
+    .course-section {
+      scroll-margin-top: 80px;
+      margin-bottom: 34px;
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 14px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 0.55rem;
+    }
+
+    .section-heading h2 {
+      margin: 0;
+      color: var(--navy);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.45rem;
+      letter-spacing: 0;
+    }
+
+    .section-heading span {
+      color: var(--muted);
+      font-size: 0.9rem;
+      white-space: nowrap;
+    }
+
+    .chapter-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .chapter-card {
+      display: grid;
+      grid-template-columns: 4.7rem minmax(0, 1fr);
+      min-height: 150px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--text);
+      box-shadow: 0 10px 26px rgba(46, 42, 35, 0.055);
+      transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+    }
+
+    .chapter-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(42, 100, 150, 0.34);
+      box-shadow: var(--shadow);
+      text-decoration: none;
+    }
+
+    .chapter-number {
+      display: grid;
+      place-items: center;
+      border-right: 1px solid var(--line);
+      background: var(--soft);
+      color: var(--navy);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.65rem;
+      font-weight: 700;
+    }
+
+    .chapter-content {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      padding: 1rem 1.05rem;
+    }
+
+    .chapter-title {
+      margin: 0 0 0.42rem;
+      color: var(--navy);
+      font-size: 1.02rem;
+      font-weight: 750;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .chapter-description {
+      margin: 0 0 0.75rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.48;
+    }
+
+    .colab-label {
+      margin-top: auto;
+      color: var(--blue);
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .practice-card {
+      grid-column: 1 / -1;
+    }
+
+    @media (max-width: 860px) {
+      .hero {
+        grid-template-columns: 1fr;
+        gap: 1.2rem;
+      }
+
+      .chapter-grid { grid-template-columns: 1fr; }
+      .practice-card { grid-column: auto; }
+    }
+
+    @media (max-width: 560px) {
+      .shell { padding-top: 18px; }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+        margin-bottom: 24px;
+      }
+
+      .folder-link { width: 100%; justify-content: center; }
+      h1 { font-size: 2.25rem; }
+
+      .section-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.12rem;
+      }
+
+      .chapter-card {
+        grid-template-columns: 3.5rem minmax(0, 1fr);
+        min-height: 142px;
+      }
+
+      .chapter-number { font-size: 1.35rem; }
+      .chapter-content { padding: 0.9rem; }
+      .chapter-title { font-size: 0.96rem; }
+
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div class="topbar">
+      <a class="back-link" href="../index.html#resources">Back to Resources</a>
+      <a class="folder-link" href="https://drive.google.com/drive/folders/1VxQxpzzwMUuAEgUey4sbqXT0b8qPLO3B?usp=sharing" target="_blank" rel="noopener">Open Google Drive Folder</a>
+    </div>
+
+    <section class="hero" aria-labelledby="pageTitle">
+      <div>
+        <p class="eyebrow">Interactive notebook course</p>
+        <h1 id="pageTitle">Linux &amp; Python Quick Start</h1>
+        <p class="hero-copy">A beginner-friendly introduction to Linux, Python, and scientific data analysis. Each chapter is an interactive notebook that opens directly in Google Colab, so you can read, edit, and run the examples in your browser.</p>
+      </div>
+      <div class="course-summary" aria-label="Course summary">
+        <strong>11 guided notebooks</strong>
+        <span>No prior Linux or Python experience required</span>
+        <span>From remote servers to differential expression</span>
+      </div>
+    </section>
+
+    <nav class="course-nav" aria-label="Course sections">
+      <a href="#linux">Linux &amp; Environment</a>
+      <a href="#python">Python Basics</a>
+      <a href="#scientific">Scientific Python</a>
+      <a href="#practice">Practice</a>
+    </nav>
+
+    <section class="course-section" id="linux">
+      <div class="section-heading">
+        <h2>Linux &amp; Working Environment</h2>
+        <span>Chapters 01-05</span>
+      </div>
+      <div class="chapter-grid">
+        <a class="chapter-card" href="https://colab.research.google.com/drive/1pobxKcrXYsnHP0lo9l5e5Rje1C3gz8YO" target="_blank" rel="noopener">
+          <span class="chapter-number">01</span>
+          <span class="chapter-content">
+            <span class="chapter-title">服务器、集群与 SSH</span>
+            <span class="chapter-description">认识远程服务器和计算集群，学习使用 SSH 建立安全连接。</span>
+            <span class="colab-label">Open in Colab</span>
+          </span>
+        </a>
+        <a class="chapter-card" href="https://colab.research.google.com/drive/1LklXU911vAExDV42aQSch0JmCaCuIoDE" target="_blank" rel="noopener">
+          <span class="chapter-number">02</span>
+          <span class="chapter-content">
+            <span class="chapter-title">操作系统、Linux 与命令行</span>
+            <span class="chapter-description">理解操作系统和 Linux 的基本概念，开始使用命令行完成任务。</span>
+            <span class="colab-label">Open in Colab</span>
+          </span>
+        </a>
+        <a class="chapter-card" href="https://colab.research.google.com/drive/1TzYpNQC-EYuX396MknUB8ZKWogFNwPIM" target="_blank" rel="noopener">
+          <span class="chapter-number">03</span>
+          <span class="chapter-content">
+            <span class="chapter-title">路径、文件属性与 Shell 脚本</span>
+            <span class="chapter-description">掌握路径、权限和文件操作，并将常用命令组织成 Shell 脚本。</span>
+            <span class="colab-label">Open in Colab</span>
+          </span>
+        </a>
+        <a class="chapter-card" href="https://colab.research.google.com/drive/1ctMEoH8P6CSCxiajN112pPOJCD4LuJ13" target="_blank" rel="noopener">
+          <span class="chapter-number">04</span>
+          <span class="chapter-content">
+            <span class="chapter-title">Conda 包与环境管理</span>
+            <span class="chapter-description">使用 Conda 安装软件包、创建环境并管理可复现的分析配置。</span>
+            <span class="colab-label">Open in Colab</span>
+          </span>
+        </a>
+        <a class="chapter-card" href="https://colab.research.google.com/drive/1Dmr0j1kLKhqgmLyixtE38eIHGnHzHViJ" target="_blank" rel="noopener">
+          <span class="chapter-number">05</span>
+          <span class="chapter-content">
+            <span class="chapter-title">JupyterLab、Notebook 与 Colab</span>
+            <span class="chapter-description">熟悉交互式 notebook 工作流，以及本地 JupyterLab 与 Colab 的使用方式。</span>
+            <span class="colab-label">Open in Colab</span>
+          </span>
+        </a>
+      </div>
+    </section>
+
+    <section class="course-section" id="python">
+      <div class="section-heading">
+        <h2>Python Basics</h2>
+        <span>Chapters 06-08</span>
+      </div>
+      <div class="chapter-grid">
+        <a class="chapter-card" href="https://colab.research.google.com/drive/1xq3Nkml8WY0i1ggMPxGcK5kBoNgi_wzi" target="_blank" rel="noopener">
+          <span class="chapter-number">06</span>
+          <span class="chapter-content">
+            <span class="chapter-title">Python 起步：变量与运行方式</span>
+            <span class="chapter-description">编写第一段 Python 代码，理解变量、表达式和常见运行方式。</span>
+            <span class="colab-label">Open in Colab</span>
+          </span>
+        </a>
+        <a class="chapter-card" href="https://colab.research.google.com/drive/1BxnuF2Ookw5SDMfJMEoDZsaiozWBGTim" target="_blank" rel="noopener">
+          <span class="chapter-number">07</span>
+          <span class="chapter-content">
+            <span class="chapter-title">Python 基础数据类型</span>
+            <span class="chapter-description">学习数值、字符串、列表、字典等核心数据类型及其常用操作。</span>
+            <span class="colab-label">Open in Colab</span>
+          </span>
+        </a>
+        <a class="chapter-card" href="https://colab.research.google.com/drive/1azxDkc796Sim63LRz60N7pY0_gf-sLks" target="_blank" rel="noopener">
+          <span class="chapter-number">08</span>
+          <span class="chapter-content">
+            <span class="chapter-title">流程控制、函数、异常与类</span>
+            <span class="chapter-description">用条件和循环组织程序，并认识函数、异常处理与面向对象基础。</span>
+            <span class="colab-label">Open in Colab</span>
+          </span>
+        </a>
+      </div>
+    </section>
+
+    <section class="course-section" id="scientific">
+      <div class="section-heading">
+        <h2>Scientific Python</h2>
+        <span>Chapters 09-10</span>
+      </div>
+      <div class="chapter-grid">
+        <a class="chapter-card" href="https://colab.research.google.com/drive/19BeDKSBkbOEuWHXwbOpxuZX0GOZKrGLU" target="_blank" rel="noopener">
+          <span class="chapter-number">09</span>
+          <span class="chapter-content">
+            <span class="chapter-title">NumPy、pandas 与科学计算</span>
+            <span class="chapter-description">使用数组和表格处理科研数据，建立高效的数据整理与计算流程。</span>
+            <span class="colab-label">Open in Colab</span>
+          </span>
+        </a>
+        <a class="chapter-card" href="https://colab.research.google.com/drive/15uiVDEj1w9R_3qTF-70CCoNYEIUgA7Aw" target="_blank" rel="noopener">
+          <span class="chapter-number">10</span>
+          <span class="chapter-content">
+            <span class="chapter-title">Matplotlib 与数据可视化</span>
+            <span class="chapter-description">从基础图形到科研绘图，学习用 Matplotlib 清晰表达数据。</span>
+            <span class="colab-label">Open in Colab</span>
+          </span>
+        </a>
+      </div>
+    </section>
+
+    <section class="course-section" id="practice">
+      <div class="section-heading">
+        <h2>Practice</h2>
+        <span>Chapter 11</span>
+      </div>
+      <div class="chapter-grid">
+        <a class="chapter-card practice-card" href="https://colab.research.google.com/drive/1hkRgld2rdYmQOJ3Og0h_peUq4U0zzsWh" target="_blank" rel="noopener">
+          <span class="chapter-number">11</span>
+          <span class="chapter-content">
+            <span class="chapter-title">实战：差异基因表达分析</span>
+            <span class="chapter-description">综合运用前面的 Python、pandas 和可视化知识，完成一次差异基因表达分析。</span>
+            <span class="colab-label">Open in Colab</span>
+          </span>
+        </a>
+      </div>
+    </section>
+
+  </main>
+</body>
+</html>
