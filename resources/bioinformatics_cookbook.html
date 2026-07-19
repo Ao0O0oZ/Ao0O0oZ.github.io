@@ -1704,6 +1704,16 @@ def count_joint_heatmap(data, source_col, target_col, source_label, value_col="p
         .replace(/>/g, "&gt;");
     }
 
+    function tokenKey(index) {
+      let value = index;
+      let letters = "";
+      do {
+        letters = String.fromCharCode(65 + (value % 26)) + letters;
+        value = Math.floor(value / 26) - 1;
+      } while (value >= 0);
+      return `\uE000${letters}\uE001`;
+    }
+
     function addCopyButton(pre) {
       if (pre.parentElement.classList.contains("code-wrap")) return;
       const wrapper = document.createElement("div");
@@ -1728,21 +1738,22 @@ def count_joint_heatmap(data, source_col, target_col, source_label, value_col="p
       wrapper.appendChild(button);
     }
 
-    function highlightCode(codeEl) {
+    function prepareCodeBlock(codeEl) {
       const lang = inferLanguage(codeEl.textContent);
       const pre = codeEl.closest("pre");
-      if (pre) pre.dataset.lang = lang;
+      if (!pre) return;
 
+      pre.dataset.lang = lang;
       const stash = [];
       let text = codeEl.textContent;
       const save = (html) => {
-        const key = `@@TOK${stash.length}@@`;
-        stash.push(html);
+        const key = tokenKey(stash.length);
+        stash.push({ key, html });
         return key;
       };
 
-      text = text.replace(/("""[\s\S]*?"""|'''[\s\S]*?'''|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')/g, m =>
-        save(`<span class="tok-string">${escapeHtml(m)}</span>`)
+      text = text.replace(/("""[\s\S]*?"""|'''[\s\S]*?'''|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')/g, match =>
+        save(`<span class="tok-string">${escapeHtml(match)}</span>`)
       );
 
       text = text.replace(/(^|\s)(#.*)$/gm, (_, lead, comment) =>
@@ -1750,26 +1761,42 @@ def count_joint_heatmap(data, source_col, target_col, source_label, value_col="p
       );
 
       let html = escapeHtml(text);
-      html = html.replace(/\b(\d+(?:\.\d+)?)\b/g, '<span class="tok-number">$1</span>');
+      html = html.replace(/\b\d+(?:\.\d+)?\b/g, match =>
+        save(`<span class="tok-number">${match}</span>`)
+      );
 
-      const commonBuiltins = "print|len|range|list|set|dict|sorted|min|max|sum|open|copy|head|subset|data\\.frame|read\\.csv|write\\.csv|factor|unique|c";
-      html = html.replace(new RegExp(`\\b(${commonBuiltins})\\b`, "g"), '<span class="tok-builtin">$1</span>');
+      const builtins = "print|len|range|list|set|dict|sorted|min|max|sum|open|copy|head|subset|data\\.frame|read\\.csv|write\\.csv|factor|unique|c";
+      html = html.replace(new RegExp(`\\b(${builtins})\\b`, "g"), match =>
+        save(`<span class="tok-builtin">${match}</span>`)
+      );
 
       if (lang === "python") {
-        html = html.replace(/\b(import|from|as|def|return|for|in|if|elif|else|with|lambda|class|try|except|raise|True|False|None|and|or|not|is|while|break|continue)\b/g, '<span class="tok-keyword">$1</span>');
+        html = html.replace(/\b(import|from|as|def|return|for|in|if|elif|else|with|lambda|class|try|except|raise|True|False|None|and|or|not|is|while|break|continue)\b/g, match =>
+          save(`<span class="tok-keyword">${match}</span>`)
+        );
       } else if (lang === "r") {
-        html = html.replace(/\b(function|library|if|else|for|in|return|TRUE|FALSE|NULL|subset|factor|levels|lapply|sapply)\b/g, '<span class="tok-keyword">$1</span>');
-        html = html.replace(/(&lt;-|%&gt;%)/g, '<span class="tok-keyword">$1</span>');
+        html = html.replace(/\b(function|library|if|else|for|in|return|TRUE|FALSE|NULL|subset|factor|levels|lapply|sapply)\b/g, match =>
+          save(`<span class="tok-keyword">${match}</span>`)
+        );
+        html = html.replace(/(&lt;-|%&gt;%)/g, match =>
+          save(`<span class="tok-keyword">${match}</span>`)
+        );
       } else {
-        html = html.replace(/\b(export|for|do|done|if|then|fi|cd|mkdir|cat|parallel|wget|lftp|cellranger|cellranger-arc|conda|python)\b/g, '<span class="tok-keyword">$1</span>');
-        html = html.replace(/(\$\{?[A-Za-z_][A-Za-z0-9_]*\}?)/g, '<span class="tok-var">$1</span>');
+        html = html.replace(/\b(export|for|do|done|if|then|fi|cd|mkdir|cat|parallel|wget|lftp|cellranger|cellranger-arc|conda|python)\b/g, match =>
+          save(`<span class="tok-keyword">${match}</span>`)
+        );
+        html = html.replace(/\$\{?[A-Za-z_][A-Za-z0-9_]*\}?/g, match =>
+          save(`<span class="tok-var">${match}</span>`)
+        );
       }
 
-      stash.forEach((value, i) => {
-        html = html.replaceAll(`@@TOK${i}@@`, value);
-      });
+      for (let i = stash.length - 1; i >= 0; i -= 1) {
+        const { key, html: tokenHtml } = stash[i];
+        html = html.replaceAll(key, tokenHtml);
+      }
+
       codeEl.innerHTML = html;
-      if (pre) addCopyButton(pre);
+      addCopyButton(pre);
     }
 
     document.querySelectorAll("a[href^='http']").forEach((link) => {
@@ -1777,7 +1804,7 @@ def count_joint_heatmap(data, source_col, target_col, source_label, value_col="p
       link.rel = "noopener noreferrer";
     });
 
-    document.querySelectorAll("pre code").forEach(highlightCode);
+    document.querySelectorAll("pre code").forEach(prepareCodeBlock);
 
     const search = document.getElementById("search");
     const items = Array.from(document.querySelectorAll(".searchable"));
