@@ -258,10 +258,6 @@
       text-transform: uppercase;
     }
 
-    .practice-card {
-      grid-column: 1 / -1;
-    }
-
     @media (max-width: 860px) {
       .hero {
         grid-template-columns: 1fr;
@@ -269,7 +265,6 @@
       }
 
       .chapter-grid { grid-template-columns: 1fr; }
-      .practice-card { grid-column: auto; }
     }
 
     @media (max-width: 560px) {
@@ -316,9 +311,9 @@
         <p class="hero-copy">A beginner-friendly introduction to Linux, Python, and scientific data analysis. Each chapter is an interactive notebook that opens directly in Google Colab, so you can read, edit, and run the examples in your browser.</p>
       </div>
       <div class="course-summary" aria-label="Course summary">
-        <strong>11 guided notebooks</strong>
+        <strong>12 guided notebooks</strong>
         <span>No prior Linux or Python experience required</span>
-        <span>From remote servers to differential expression</span>
+        <span>From remote servers to biological data analysis</span>
       </div>
     </section>
 
@@ -439,14 +434,22 @@
     <section class="course-section" id="practice">
       <div class="section-heading">
         <h2>Practice</h2>
-        <span>Chapter 11</span>
+        <span>Chapters 11-12</span>
       </div>
       <div class="chapter-grid">
-        <a class="chapter-card practice-card" href="https://colab.research.google.com/drive/1hkRgld2rdYmQOJ3Og0h_peUq4U0zzsWh" target="_blank" rel="noopener">
+        <a class="chapter-card" href="https://colab.research.google.com/drive/1hkRgld2rdYmQOJ3Og0h_peUq4U0zzsWh" target="_blank" rel="noopener">
           <span class="chapter-number">11</span>
           <span class="chapter-content">
             <span class="chapter-title">实战：差异基因表达分析</span>
             <span class="chapter-description">综合运用前面的 Python、pandas 和可视化知识，完成一次差异基因表达分析。</span>
+            <span class="colab-label">Open in Colab</span>
+          </span>
+        </a>
+        <a class="chapter-card" href="https://colab.research.google.com/drive/1-M91_8_pk18Oh7RZBHHauDM0cHjfcelI" target="_blank" rel="noopener">
+          <span class="chapter-number">12</span>
+          <span class="chapter-content">
+            <span class="chapter-title">实战：跨物种蛋白质二肽偏好分析</span>
+            <span class="chapter-description">比较不同物种的蛋白质二肽使用偏好，练习序列数据处理、频率统计与结果可视化。</span>
             <span class="colab-label">Open in Colab</span>
           </span>
         </a>
