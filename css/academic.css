@@ -248,6 +248,7 @@ a:hover { text-decoration: underline; }
 }
 
 .about-bio {
+    --about-bio-inset: min(36%, 340px);
     font-size: 0.875rem;
     line-height: 1.55;
 }
@@ -255,7 +256,7 @@ a:hover { text-decoration: underline; }
 .about-bio p { margin-bottom: 1rem; }
 
 .about-bio > p:first-child {
-    padding-right: min(36%, 340px);
+    padding-right: var(--about-bio-inset);
 }
 
 .interest-list {
@@ -348,11 +349,18 @@ a:hover { text-decoration: underline; }
 }
 
 .contact-info {
+    position: relative;
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem 1.5rem;
     margin-top: 1.5rem;
     padding-top: 1.5rem;
+}
+
+.contact-info::before {
+    content: '';
+    position: absolute;
+    inset: 0 var(--about-bio-inset) auto 0;
     border-top: 1px solid var(--border);
 }
 
@@ -822,8 +830,8 @@ a:hover { text-decoration: underline; }
         border-color: transparent !important;
     }
 
-    .about-bio > p:first-child {
-        padding-right: 0;
+    .about-bio {
+        --about-bio-inset: 0px;
     }
 
     .education-panel {
